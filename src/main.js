@@ -18,6 +18,7 @@ var Game = function () {
 
   game.onload = function() {
     game.player = new Player();
+    window.player = game.player;
     game.rootScene.addChild(game.player);
   };
 
@@ -38,17 +39,15 @@ var RoadDay = Class.create(enchant.Sprite, {
 
 var Player = Class.create(enchant.Sprite, {
   initialize:function() {
+    var self = this;
+
     enchant.Sprite.call(this, 200, 358);
     this.image = game.assets['img/jeanjacques.png'];
     this.x = this.y = 0;
-    this.frame = 0;
+    this.frames = [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 ];
 
     this.addEventListener('enterframe', function () {
-      if (game.input.left) {
-        debugger;
-      } else if (game.input.right) {
-        this.x += 3;
-      }
+      self.frame = self.walking ? self.frames : 0;
     });
 
   }
