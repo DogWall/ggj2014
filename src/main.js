@@ -7,14 +7,12 @@ enchant();
 
 var game;
 
-enchant();
-
 /**
  * Main
  */
 var Game = function () {
 
-  var game = new enchant.Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
+  game = new enchant.Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
   game.fps = 30;
   game.preload('img/jeanjacques.png'/*'foo.png','bar.png'*/); //preload assets png, wav etc
 
