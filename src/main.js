@@ -1,5 +1,4 @@
 
-<<<<<<< HEAD
 /* global enchant, Class */
 
 enchant();
@@ -7,47 +6,34 @@ enchant();
 (function() {
 
 var game;
-=======
-//init enchant.js
 
 enchant();
-
->>>>>>> 3268107a2f43e116c918b926b970828e20e260f2
 
 /**
  * Main
  */
-window.onload = function () {
+var Game = function () {
 
-    var game = new Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
-    game.fps = 24;
-    game.preload("img/jeanjacques.png"/*'foo.png','bar.png'*/); //preload assets png, wav etc
+  var game = new enchant.Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
+  game.fps = 30;
+  game.preload('img/jeanjacques.png'/*'foo.png','bar.png'*/); //preload assets png, wav etc
 
-    game.onload = function(){
-      ground = new Sprite(200,358);
-      ground.image=game.assets["img/jeanjacques.png"];
-      ground.x=0;
-      ground.y=0;
-      ground.frame=0;
-      //ground.tl.moveBy(200,0,60,enchant.Easing.LINEAR)
-      ground.tl.delay(10).then(function (){ground.frame=1}).delay(10).then(function (){ground.frame=2}).delay(10).then(function (){ground.frame=1}).delay(10).then(function (){ground.frame=0}).loop();
-      game.rootScene.addChild(ground);
-
-      var talkBubbles = new enchant.Group();
-
-      game.start();
-  }
+  game.onload = function() {
+    game.player = new Player();
+    game.rootScene.addChild(game.player);
+  };
 
   game.twist = function () {
 
-  }
+  };
 
-}
+  game.start();
+};
 
-var Road = Class.create(enchant.Sprite, {
+var RoadDay = Class.create(enchant.Sprite, {
   initialize:function() {
     enchant.Sprite.call(this, 32, 32);
-    this.image = game.assets[''];
+    this.image = game.assets['img/route-jour.png'];
   }
 });
 
@@ -56,7 +42,7 @@ var Player = Class.create(enchant.Sprite, {
     enchant.Sprite.call(this, 200, 358);
     this.image = game.assets['img/jeanjacques.png'];
     this.x = this.y = 0;
-    this.frame=0;
+    this.frame = 0;
   }
 });
 
