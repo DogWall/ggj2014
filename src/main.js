@@ -14,7 +14,7 @@ var Game = function () {
 
   game = new enchant.Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
   game.fps = 30;
-  game.preload('img/jeanjacques.png'/*'foo.png','bar.png'*/); //preload assets png, wav etc
+  game.preload('img/jeanjacques.png'); //preload assets png, wav etc
 
   game.onload = function() {
     game.player = new Player();
@@ -24,6 +24,7 @@ var Game = function () {
   game.twist = function () {
 
   };
+
 
   game.start();
 };
@@ -41,6 +42,15 @@ var Player = Class.create(enchant.Sprite, {
     this.image = game.assets['img/jeanjacques.png'];
     this.x = this.y = 0;
     this.frame = 0;
+
+    this.addEventListener('enterframe', function () {
+      if (game.input.left) {
+        debugger;
+      } else if (game.input.right) {
+        this.x += 3;
+      }
+    });
+
   }
 });
 
