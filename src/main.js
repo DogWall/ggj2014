@@ -14,7 +14,6 @@ function Game () {
     game.preload(/*'foo.png','bar.png'*/); //preload assets png, wav etc
     game.score = 0;
 
-
     // var bear = new Sprite(32, 32);
     // bear.image = game.assets['chara1.png'];
     // game.rootScene.addChild(bear);
@@ -23,4 +22,3 @@ function Game () {
 
     game.start();
 }
-
