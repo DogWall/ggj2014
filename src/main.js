@@ -7,5 +7,5 @@ window.onload = function() {
     game.fps = 24;
     game.preload('foo.png','bar.png');//preload assets png, wav etc
     game.score = 0;
-    game.start();
+    game.start();//start
 }
