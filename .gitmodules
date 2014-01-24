@@ -1,0 +1,6 @@
+[submodule "ggj2014"]
+	path = ggj2014
+	url = https://github.com/DogWall/ggj2014.git
+[submodule "enchant.js"]
+	path = enchant.js
+	url = https://github.com/wise9/enchant.js.git
