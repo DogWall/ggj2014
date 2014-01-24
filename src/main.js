@@ -1,4 +1,5 @@
 
+<<<<<<< HEAD
 /* global enchant, Class */
 
 enchant();
@@ -6,35 +7,60 @@ enchant();
 (function() {
 
 var game;
+=======
+//init enchant.js
+
+enchant();
+
+>>>>>>> 3268107a2f43e116c918b926b970828e20e260f2
 
 /**
  * Main
  */
-function Game () {
+window.onload = function () {
 
-    game = new enchant.Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
-    game.fps = 30;
-    game.preload('img/jeanjacques.png'); //preload assets png, wav etc
-    game.score = 0;
+    var game = new Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
+    game.fps = 24;
+    game.preload("img/jeanjacques.png"/*'foo.png','bar.png'*/); //preload assets png, wav etc
 
-    var bear = new enchant.Sprite(200, 358);
-    bear.image = game.assets['img/jeanjacques.png'];
-    game.rootScene.addChild(bear);
-    bear.frame = [0, 1, 2];   // select sprite frame
+    game.onload = function(){
+      ground = new Sprite(200,358);
+      ground.image=game.assets["img/jeanjacques.png"];
+      ground.x=0;
+      ground.y=0;
+      ground.frame=0;
+      //ground.tl.moveBy(200,0,60,enchant.Easing.LINEAR)
+      ground.tl.delay(10).then(function (){ground.frame=1}).delay(10).then(function (){ground.frame=2}).delay(10).then(function (){ground.frame=1}).delay(10).then(function (){ground.frame=0}).loop();
+      game.rootScene.addChild(ground);
 
-    var talkBubbles = new enchant.Group();
+      var talkBubbles = new enchant.Group();
 
-    game.start();
+      game.start();
+  }
+
+  game.twist = function () {
+
+  }
+
 }
 
-
-var Player = Class.create(enchant.Sprite,{
+var Road = Class.create(enchant.Sprite, {
   initialize:function() {
     enchant.Sprite.call(this, 32, 32);
+    this.image = game.assets[''];
   }
 });
 
+var Player = Class.create(enchant.Sprite, {
+  initialize:function() {
+    enchant.Sprite.call(this, 200, 358);
+    this.image = game.assets['img/jeanjacques.png'];
+    this.x = this.y = 0;
+    this.frame=0;
+  }
+});
 
+/*
 var GGJButton = Class.create(enchant.Sprite,{
   initialize: function(x, y, scene, height, width, upPic, downPic, text) {
     enchant.Sprite.call(this,width,height);
@@ -70,6 +96,7 @@ var GGJButton = Class.create(enchant.Sprite,{
     scene.addChild(this.textLabel);
   }
 });
+*/
 
 
 Game();
