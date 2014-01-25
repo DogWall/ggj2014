@@ -130,8 +130,8 @@ var Player = Class.create(enchant.Sprite, {
     this.walking = true;
   },
   twist: function(){
-    this.image = (game.twisted ? this.image_n : this.image_j);
-    this.tl.fadeOut(5).fadeIn(5);
+
+    this.tl.fadeOut(10).then(function(){this.image = (game.twisted ? this.image_n : this.image_j)}).fadeIn(10);
   },
   onenterframe: function() {
 
@@ -262,29 +262,22 @@ Game.prototype.twist = function() {
     game.player.scale(-1, 1); // this.twisted
     game.player.twist();
     if (game.twisted) {
-      game.player.tl.delay(10).fadeIn(10);
-      // jj.tl.fadeOut(10);
-      this.upperScene.tl.rotateBy(-180, 15).then(function(){
-        game.rootScene.removeChild(this.upperScene);
+
+      this.upperScene.tl.rotateBy(-180, 10).then(function(){
         game.twisting = false;
       });
-      this.lowerScene.tl.rotateBy(-180, 15);
+      this.lowerScene.tl.rotateBy(-180, 10);
 
 
       //  this.rootScene.tl.rotateBy(-180,15);
-      this.backSprite.tl.delay(15).then(function(){
-        self.backSprite.backgroundColor = 'darkgrey';
-      });
+
 
     } else {
-      game.player.tl.delay(10).fadeIn(10);
-      // jj2.tl.fadeOut(10);
-      this.upperScene.tl.rotateBy(180, 15);
-      this.lowerScene.tl.rotateBy(180, 15).then(function(){game.rootScene.removeChild(this.lowerScene); game.twisting = false; });
+
+      this.upperScene.tl.rotateBy(180, 10);
+      this.lowerScene.tl.rotateBy(180, 10).then(function(){game.twisting = false; });
        // this.rootScene.tl.rotateBy(180,15);
-      this.backSprite.tl.delay(15).then(function(){
-        self.backSprite.backgroundColor = 'lightblue';
-      });
+
     }
   }
 
