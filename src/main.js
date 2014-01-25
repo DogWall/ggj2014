@@ -10,6 +10,8 @@ enchant();
 var SceneOneUpper = Class.create(enchant.Scene, {
   initialize: function (game) {
 
+    var self = this;
+
     enchant.Scene.call(this);
 
     // ROAD
@@ -39,8 +41,32 @@ var SceneOneUpper = Class.create(enchant.Scene, {
       xoffset += asset.width;
     }
 
-    // this.actors = new enchant.Scene();
-    // this.actors.addChild(jj);
+
+    game.onexitframe = function() {
+
+      // METEORS EVERY 32 FRAMES
+      if (game.rootScene.age % 32 === 0) {
+        var meteor = new enchant.Sprite(64, 64);
+        meteor.image = game.assets['enchant.js/images/space1.png'];
+        meteor.x = WIDTH/2 - WIDTH/1.5;
+        meteor.y = - HEIGHT;
+        self.addChild(meteor);
+        meteor.tl.moveBy(WIDTH / 1.5, HEIGHT, 30);
+        meteor.onenterframe = function(){
+          if (! game.twisting && ! this._intersected) {
+            var now = new Date();
+            if (this.intersect(game.player) && now - game.player.inSceneSince > 1500) {
+              console.log('Yo, you are dead bitch, you were in scene since %o ms !', now - game.player.inSceneSince);
+              this._intersected = true;
+              self.removeChild(this);
+            }
+          }
+        };
+      }
+
+
+    };
+
   }
 });
 SceneOneUpper.preload = ['img/route-jour.png'];
@@ -50,6 +76,8 @@ for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-j
 
 var SceneOneLower = Class.create(enchant.Scene, {
   initialize: function (game) {
+
+    var self = this;
 
     enchant.Scene.call(this);
 
@@ -82,10 +110,9 @@ var SceneOneLower = Class.create(enchant.Scene, {
       xoffset += asset.width;
     }
 
-
   }
 });
-SceneOneLower.preload = ['img/route-nuit.png'];
+SceneOneLower.preload = ['img/route-nuit.png', 'enchant.js/images/space1.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-n-fs8.png'); }
 
 
@@ -107,6 +134,7 @@ var settings = {
     }
   ]
 };
+
 /*
 * Dropping objects
  */
@@ -121,6 +149,7 @@ Droppable = Class.create(enchant.Sprite, {
             callback();
     }
 });
+
 /**
  * Player
  */
@@ -138,16 +167,22 @@ var Player = Class.create(enchant.Sprite, {
     this.x = WIDTH / 2;
     this.y = HEIGHT / 2 - this.height - 150;
     this.frames = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
-     this.frame=this.frames;
+    this.frame = this.frames;
 
     this.walking = true;
   },
   twist: function(){
-
-    this.tl.fadeOut(10).then(function(){this.image = (game.twisted ? this.image_n : this.image_j)}).fadeIn(10);
+    this.tl
+      .then(function(){
+        this.inSceneSince = new Date();
+      })
+      .fadeOut(10)
+      .then(function(){
+          this.image = (game.twisted ? this.image_n : this.image_j);
+      })
+      .fadeIn(10);
   },
   onenterframe: function() {
-
 
     //06.2 Intersect
 
@@ -183,7 +218,6 @@ var Game = function () {
       preload.push(settings.levels[i].lowerScene.preload[j]);
     }
   }
-    preload.push("enchant.js/images/space1.png");
 
   game.preload(preload); //preload assets png, wav etc
    // game.preload(["enchant.js/images/space1.png"])
@@ -208,42 +242,6 @@ var Game = function () {
     self.loadLevel(0);
     game.rootScene.addChild(game.playerScene);
     game.playerScene.y = HEIGHT / 2;
-
-      game.onexitframe = function() {
-
-          if (game.rootScene.age%8 == 0)
-          {
-
-              test = new Sprite(64,64);
-
-              test.image=game.assets["enchant.js/images/space1.png"]
-              test.x=WIDTH/2-WIDTH/1.5
-              test.y=-HEIGHT
-              game.rootScene.addChild(test)
-              console.log("incoming")
-              //test.x=this.player.x;
-              if (game.twisted){
-                  self.lowerScene.addChild(test);}
-              else{
-                  self.upperScene.addChild(test);}
-
-              test.tl.moveBy(WIDTH/1.5,HEIGHT,30);
-              test.onenterframe=function(){
-              if (!game.twisting)
-              {
-
-                if (this.intersect(game.player))
-                {
-                    console.log("Yo, you're dead bitch!")
-                }
-              }
-
-
-          }
-          }
-
-      }
-
 
   };
 
