@@ -2,8 +2,8 @@
 /* global enchant, Class */
 
 //init enchant.js
-var HEIGHT = window.innerHeight *2;
-var WIDTH = window.innerWidth *2;
+var HEIGHT = window.innerHeight;
+var WIDTH = window.innerWidth;
 
 enchant();
 
@@ -19,20 +19,23 @@ var SceneOneUpper = Class.create(enchant.Scene, {
     ground.x = WIDTH / 2 - ground.width / 2;
     ground.y = HEIGHT / 2 - ground.height;
     ground.tl.moveBy(-1500, 0, 300);
+     ground.touchEnabled=false
     this.addChild(ground);
 
     // // BUILDINGS
-    // for (var i = 0; i < 60; i++) {
-    //   var asset = game.assets['img/imm' + ((i%6)+1) + '-j.png'];
-    //   var building = new enchant.Sprite(asset.width, asset.height);
-    //   building.image = asset;
-    //   building.x = building.width / 2;
-    //   building.y = HEIGHT / 2 - ground.height - building.height;
-
-    //   building.tl.moveBy(-1000, 0, 300);
-
-    //   this.addChild(building);      
-    // }
+      xoffset =0;
+      // BUILDINGS
+      for (var i = 0; i < 60; i++) {
+          var asset = game.assets['img/imm' + ((i%6)+1) + '-j.png'];
+          var building = new enchant.Sprite(asset.width, asset.height);
+          building.image = asset;
+          building.x = building.width / 2+xoffset;
+          building.y = HEIGHT / 2 - ground.height - building.height;
+          building.tl.moveBy(-1000, 0, 300);
+          building.touchEnabled=false
+          this.addChild(building);
+          xoffset+=asset.width
+      }
 
     // this.actors = new Scene();
     // this.actors.addChild(jj);
@@ -43,33 +46,36 @@ for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-j
 
 
 
-var SceneOneLower = Class.create(enchant.Group, {
+var SceneOneLower = Class.create(enchant.Scene, {
   initialize: function (game) {
 
-    enchant.Group.call(this);
+    enchant.Scene.call(this);
 
     // ROAD
     var assetroad = game.assets['img/route-nuit.png'];
     var ground = new enchant.Sprite(assetroad.width, assetroad.height);
-    ground.image = assetroad;
-    ground.width = 10000;
-    // ground.x = window.innerWidth/2-ground.width/2;
-    ground.x = 0;
-    ground.y = -30;
-    // ground.scale(0.33);
-    ground.tl.moveBy(-1500, 0, 300);
+      ground.image = assetroad
+      ground.width = WIDTH * 2;
+      ground.x = WIDTH / 2 - ground.width / 2;
+      ground.y = HEIGHT / 2 - ground.height;
+      ground.tl.moveBy(1500, 0, 300);
+      ground.touchEnabled=false
     this.addChild(ground);
 
-    // // BUILDINGS
-    // for (var i = 0; i < 60; i++) {
-    //   var asset = game.assets['img/imm' + ((i%6)+1) + '-n.png'];
-    //   var building = new enchant.Sprite(asset.width, asset.height);
-    //   building.image = asset;
-    //   building.x = building.width / 2;
-    //   building.y = HEIGHT / 2 - ground.height - building.height;
-    //   building.tl.moveBy(-1000, 0, 300);
-    //   this.addChild(building);      
-    // }
+    xoffset =0;
+    // BUILDINGS
+    for (var i = 0; i < 60; i++) {
+       var asset = game.assets['img/imm' + ((i%6)+1) + '-n.png'];
+       var building = new enchant.Sprite(asset.width, asset.height);
+       building.image = asset;
+       building.x = building.width / 2+xoffset;
+       building.y = HEIGHT / 2 - ground.height - building.height;
+       building.tl.moveBy(1000, 0, 300);
+        building.touchEnabled=false
+       this.addChild(building);
+
+        xoffset+=asset.width
+    }
 
 
   }
@@ -183,13 +189,16 @@ var Game = function () {
     self.backgroundScene.addChild(self.backSprite);
     // game.rootScene.addChild(self.backgroundScene);
 
-    game.stagesScene = new enchant.Group();
-    game.rootScene.addChild(game.stagesScene);
+    //game.rootScene = new enchant.Group();
+    //game.rootScene.addChild(game.rootScene);
 
     game.player = new Player();
-    game.rootScene.addChild(game.player);
+    game.playerScene = new Scene();
+    game.playerScene.addChild(game.player);
 
     self.loadLevel(0);
+     game.rootScene.addChild(game.playerScene);
+      game.playerScene.y=HEIGHT/2;
   };
 
   game.rootScene.addEventListener('touchstart', function() {
@@ -203,18 +212,24 @@ var Game = function () {
 Game.prototype.loadLevel = function(levelIndex) {
 
   if (this.upperScene || this.lowerScene) {
-    game.stagesScene.removeChild(this.upperScene);
-    game.stagesScene.removeChild(this.lowerScene);    
+    game.rootScene.removeChild(this.upperScene);
+    game.rootScene.removeChild(this.lowerScene);
+
   }
+ //   game.rootScene.removeChild(this.player);
 
   this.upperScene = new settings.levels[levelIndex].upperScene(game);
-  this.upperScene.y = 0;
-  game.stagesScene.addChild(this.upperScene);
+  //this.upperScene.y = 0;
+  game.rootScene.addChild(this.upperScene);
 
   this.lowerScene = new settings.levels[levelIndex].lowerScene(game);
-  this.lowerScene.y = game.height / 2;
+  //this.lowerScene.y = game.height / 2;
   this.lowerScene.rotation = -180;
-  game.stagesScene.addChild(this.lowerScene);
+  game.rootScene.addChild(this.lowerScene);
+    this.lowerScene.y=HEIGHT/2;
+    this.upperScene.y=HEIGHT/2;
+
+   // game.rootScene.addChild(game.player);
 };
 
 Game.prototype.twist = function() {
@@ -222,8 +237,8 @@ Game.prototype.twist = function() {
   var self = this;
 
   game.twisted = !game.twisted;
-  // game.stagesScene.tl.scaleTo(1, this.twisted ? -1 : 1, 10, enchant.Easing.LINEAR);
-  // game.stagesScene.tl.rotateTo(this.twisted ? 180 : 0, 10, enchant.Easing.LINEAR);
+  // game.rootScene.tl.scaleTo(1, this.twisted ? -1 : 1, 10, enchant.Easing.LINEAR);
+  // game.rootScene.tl.rotateTo(this.twisted ? 180 : 0, 10, enchant.Easing.LINEAR);
 
   // this.player.tl.fadeOut(0);
   game.player.scale(-1, 1); // this.twisted
@@ -231,8 +246,9 @@ Game.prototype.twist = function() {
   if (game.twisted) {
     game.player.tl.delay(10).fadeIn(10);
     // jj.tl.fadeOut(10);
-    this.upperScene.tl.rotateBy(180, 15);
+    this.upperScene.tl.rotateBy(-180, 15);
     this.lowerScene.tl.rotateBy(-180, 15);
+    //  this.rootScene.tl.rotateBy(-180,15);
     this.backSprite.tl.delay(15).then(function(){
       self.backSprite.backgroundColor = 'darkgrey';
     });
@@ -241,7 +257,8 @@ Game.prototype.twist = function() {
     game.player.tl.delay(10).fadeIn(10);
     // jj2.tl.fadeOut(10);
     this.upperScene.tl.rotateBy(-180, 15);
-    this.lowerScene.tl.rotateBy(180, 15);
+    this.lowerScene.tl.rotateBy(-180, 15);
+     // this.rootScene.tl.rotateBy(180,15);
     this.backSprite.tl.delay(15).then(function(){
       self.backSprite.backgroundColor = 'lightblue';
     });
