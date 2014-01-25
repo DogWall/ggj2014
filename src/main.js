@@ -1,34 +1,98 @@
 
-//init enchant.js
+/* global enchant, Class */
 
 enchant();
 
+(function() {
+
+var game;
 
 /**
  * Main
  */
-window.onload = function () {
+var Game = function () {
 
-    var game = new Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
-    game.fps = 24;
-    game.preload("img/jeanjacques.png"/*'foo.png','bar.png'*/); //preload assets png, wav etc
-    game.onload = function(){
-    ground = new Sprite(200,358);
-    console.log("sprite ok")
-    ground.image=game.assets["img/jeanjacques.png"];
-    ground.x=0;
-    ground.y=0;
-    ground.frame=0;
-        //ground.tl.moveBy(200,0,60,enchant.Easing.LINEAR)
-        ground.tl.delay(10).then(function (){ground.frame=1}).delay(10).then(function (){ground.frame=2}).delay(10).then(function (){ground.frame=1}).delay(10).then(function (){ground.frame=0}).loop();
-    game.rootScene.addChild(ground);
+  game = new enchant.Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
+  game.fps = 30;
+  game.preload('img/jeanjacques.png'); //preload assets png, wav etc
+
+  game.onload = function() {
+    game.player = new Player();
+    game.rootScene.addChild(game.player);
+  };
+
+  game.twist = function () {
+
+  };
+
+
+  game.start();
+};
+
+var RoadDay = Class.create(enchant.Sprite, {
+  initialize:function() {
+    enchant.Sprite.call(this, 32, 32);
+    this.image = game.assets['img/route-jour.png'];
+  }
+});
+
+var Player = Class.create(enchant.Sprite, {
+  initialize:function() {
+    enchant.Sprite.call(this, 200, 358);
+    this.image = game.assets['img/jeanjacques.png'];
+    this.x = this.y = 0;
+    this.frame = 0;
+
+    this.addEventListener('enterframe', function () {
+      if (game.input.left) {
+        debugger;
+      } else if (game.input.right) {
+        this.x += 3;
+      }
+    });
+
+  }
+});
+
+/*
+var GGJButton = Class.create(enchant.Sprite,{
+  initialize: function(x, y, scene, height, width, upPic, downPic, text) {
+    enchant.Sprite.call(this,width,height);
+    this.x = x;
+    this.y = y;
+    scene.addChild(this);
+    this.image = game.assets[upPic];
+    this.imageUp = game.assets[upPic];
+    this.imageDown = game.assets[downPic];
+    this.color='cyan';
+    this.addEventListener('touchstart', function() {
+      this.image = game.assets[downPic];
+      this.textLabel.color = 'black';
+    });
+    this.addEventListener('touchend', function() {
+      this.image = game.assets[upPic];
+      this.textLabel.color = this.color;
+    });
+    this.textLabel = new enchant.Label();
+    this.textLabel.text = text;
+    this.textLabel.x = x + 10;
+    this.textLabel.y = y + 5;
+    this.textLabel.width = width - 20;
+    if (height-10 > 5) {
+      this.textLabel.height = height-10;
+    } else {
+      this.textLabel.height = 6;
     }
+    this.textLabel.font = this.textLabel.height + 'px sans';
+    this.textLabel.textAlign = 'center';
+    this.textLabel.touchEnabled = false;
+    this.textLabel.color = 'cyan';
+    scene.addChild(this.textLabel);
+  }
+});
+*/
 
-    // var bear = new Sprite(32, 32);
-    // bear.image = game.assets['chara1.png'];
-    // game.rootScene.addChild(bear);
-    // bear.frame = [6, 6, 7, 7];   // select sprite frame
 
+Game();
 
-    game.start();
-}
+})();
