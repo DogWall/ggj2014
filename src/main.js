@@ -132,9 +132,9 @@ var SceneOneUpper = Class.create(enchant.Scene, {
 
     // METEORS
     game.rootScene.tl.delay(30).then(function() {
-      var meteor = new enchant.Sprite(64, 64);
-      meteor.image = game.assets['enchant.js/images/space1.png'];
-      meteor.x = WIDTH/2 - WIDTH/1.5;
+      var meteor = new enchant.Sprite(game.assets['img/falling_meteorite.png'].width,game.assets['img/falling_meteorite.png'].height);
+      meteor.image = game.assets['img/falling_meteorite.png'];
+      meteor.x = WIDTH/2 - (0.5-Math.random())*WIDTH/1.5;
       meteor.y = - HEIGHT;
       self.addChild(meteor);
       meteor.tl
@@ -184,7 +184,7 @@ var SceneOneLower = Class.create(enchant.Scene, {
 
   }
 });
-SceneOneLower.preload = ['img/route-nuit-fs8.png', 'enchant.js/images/space1.png', 'img/elem-poubelles-n.png', 'img/elem-arbre-n.png', 'img/elem-lampe-n.png', 'img/fond-nuit.png', 'img/decor-nuit.png'];
+SceneOneLower.preload = ['img/route-nuit-fs8.png', 'img/falling_meteorite.png', 'img/elem-poubelles-n.png', 'img/elem-arbre-n.png', 'img/elem-lampe-n.png', 'img/fond-nuit.png', 'img/decor-nuit.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-n-fs8.png'); }
 
 
