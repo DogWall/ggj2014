@@ -221,9 +221,18 @@ var Game = function () {
 
   });
 
-  game.rootScene.addEventListener('touchstart', function() {
+  game.rootScene.addEventListener('touchstart', function () {
     self.twist();
   });
+
+  window.addEventListener('deviceorientation', function (event) {
+    // console.log(event.beta, event.gamma);
+    var orient = Math.round(event.gamma * 10);
+    if (game._last_orient != orient) {
+      game._last_orient = orient;
+      self.twist();
+    } 
+  }, true);
 
   game.start();
 };
