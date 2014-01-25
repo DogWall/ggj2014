@@ -162,7 +162,7 @@ var SceneOneUpper = Class.create(enchant.Scene, {
 
   }
 });
-SceneOneUpper.preload = ['img/route-jour-fs8.png', 'img/elem-poubelles-j.png', 'img/elem-arbre-j.png', 'img/elem-lampe-j.png', 'img/fond-jour.png', 'img/decor-jour.png'];
+SceneOneUpper.preload = ['sounds/Jour_0_1.wav','sounds/Nuit_0_1.wav','img/route-jour-fs8.png', 'img/elem-poubelles-j.png', 'img/elem-arbre-j.png', 'img/elem-lampe-j.png', 'img/fond-jour.png', 'img/decor-jour.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-j-fs8.png'); }
 
 
@@ -279,6 +279,13 @@ var Game = function () {
  // game.fps = 24;
   game.onload = function () {
 
+      self.sndJour= game.assets['sounds/Jour_0_1.wav'].clone()
+      self.sndJour.play();
+
+      self.sndNuit= game.assets['sounds/Nuit_0_1.wav'].clone()
+      self.sndNuit.play();
+      self.sndNuit.volume=0;
+
     self.backgroundScene = new enchant.Scene();
     self.backSprite = new enchant.Sprite(WIDTH, HEIGHT);
     self.backSprite.backgroundColor = 'lightblue';
@@ -368,6 +375,7 @@ Game.prototype.twist = function() {
 
     game.twisting = true;
 
+
     game.twisted = !game.twisted;
     // game.rootScene.tl.scaleTo(1, this.twisted ? -1 : 1, 10, enchant.Easing.LINEAR);
     // game.rootScene.tl.rotateTo(this.twisted ? 180 : 0, 10, enchant.Easing.LINEAR);
@@ -377,8 +385,11 @@ Game.prototype.twist = function() {
     game.player.twist();
     if (game.twisted) {
 
+        self.sndJour.volume=0;
+
+
       this.upperScene.tl.rotateBy(-180, 10).then(function(){
-        game.twisting = false;
+        game.twisting = false;self.sndNuit.volume=1;
       });
       this.lowerScene.tl.rotateBy(-180, 10);
 
@@ -388,8 +399,10 @@ Game.prototype.twist = function() {
 
     } else {
 
+        self.sndNuit.volume=0;
+        //self.sndNuit.tl.tween({volume:0,time:10});
       this.upperScene.tl.rotateBy(180, 10);
-      this.lowerScene.tl.rotateBy(180, 10).then(function(){game.twisting = false; });
+      this.lowerScene.tl.rotateBy(180, 10).then(function(){game.twisting = false; self.sndJour.volume=1;});
        // this.rootScene.tl.rotateBy(180,15);
 
     }
