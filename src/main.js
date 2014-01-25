@@ -170,7 +170,7 @@ var Game = function () {
   }
 
   game.preload(preload); //preload assets png, wav etc
-    game.fps=24;
+  game.fps = 24;
   game.onload = function () {
 
     self.backgroundScene = new enchant.Scene();
@@ -191,32 +191,36 @@ var Game = function () {
     game.playerScene.y = HEIGHT / 2;
   };
 
-  game.rootScene.addEventListener('enterframe', function () {
-
-    if (self.upperScene.buildings && self.upperScene.buildings.length > 0) {
-      var tmp, last = self.upperScene.buildings.length - 1;
+  game.shiftBuildings = function (scene, direction) {
+    if (scene.buildings && scene.buildings.length > 0) {
+      var tmp, last = scene.buildings.length - 1;
 
       // move all the things
       for (var i = 0; i <= last; i++) {
-        self.upperScene.buildings[i].x -= 10;
+        scene.buildings[i].x += (10 * direction);
       }
-
 
       // reuse buildings
-      if (self.upperScene.buildings[0].x < WIDTH * - 1.5) {
-        tmp = self.upperScene.buildings.shift();
-        tmp.x = self.upperScene.buildings[last-1].x + self.upperScene.buildings[last-1].width;
+      if (scene.buildings[0].x < WIDTH * - 1.5) {
+        tmp = scene.buildings.shift();
+        tmp.x = scene.buildings[last-1].x + scene.buildings[last-1].width;
         console.log('push the unshifted to %o', tmp.x);
-        self.upperScene.buildings.push( tmp );
+        scene.buildings.push( tmp );
       }
-      if (self.upperScene.buildings[last].x > WIDTH * 1.5) {
-        tmp = self.upperScene.buildings.pop();
-        tmp.x = self.upperScene.buildings[0].x - self.upperScene.buildings[0].width;
-        self.upperScene.buildings.unshift( tmp );
+      if (scene.buildings[last].x > WIDTH * 1.5) {
+        tmp = scene.buildings.pop();
+        tmp.x = scene.buildings[0].x - scene.buildings[0].width;
+        scene.buildings.unshift( tmp );
         console.log('shift the poped to %o', tmp.x);
       }
-
     }
+  };
+
+  game.rootScene.addEventListener('enterframe', function () {
+
+    game.shiftBuildings(self.upperScene, -1);
+    game.shiftBuildings(self.lowerScene, +1);
+
   });
 
   game.rootScene.addEventListener('touchstart', function() {
