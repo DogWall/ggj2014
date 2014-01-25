@@ -7,6 +7,23 @@ WIDTH = window.innerWidth;
 
 enchant();
 
+// /*
+//  * Dropping objects
+//  */
+// var Droppable = Class.create(enchant.Sprite, {
+//   initialize: function (x,y) {
+//     enchant.Sprite.call(x,y);
+//     this.callback = function (){ };
+//   },
+//   trajectory: function(){
+//     this.y += 3;
+//   },
+//   onexitframe:function(){
+//     if (this.intersect(game.player)) callback();
+//   }
+// });
+
+
 var SceneOneUpper = Class.create(enchant.Scene, {
   initialize: function (game) {
 
@@ -134,21 +151,6 @@ var settings = {
     }
   ]
 };
-
-/*
-* Dropping objects
- */
-Droppable = Class.create(enchant.Sprite, {
-    initialize: function (x,y) {
-        enchant.Sprite.call(x,y);
-        this.callback = function (){}
-    },
-    trajectory: function(){this.y+=3;},
-    onexitframe:function(){
-        if (this.intersect(game.player))
-            callback();
-    }
-});
 
 /**
  * Player
