@@ -187,6 +187,30 @@ var Game = function () {
     self.loadLevel(0);
     game.rootScene.addChild(game.playerScene);
     game.playerScene.y = HEIGHT / 2;
+
+    game.rootScene.addEventListener('enterframe', function () {
+
+      game.shiftBuildings(self.upperScene, -1);
+      game.shiftBuildings(self.lowerScene, +1);
+
+    });
+
+    game.rootScene.addEventListener('touchstart', function () {
+      self.twist();
+    });
+
+    false && window.addEventListener('deviceorientation', function (event) {
+      var angle = event.gamma;
+
+      if (angle < -40) { angle = -1; }
+      else if (angle > +40) { angle = +1; }
+      else angle = game._last_angle;
+
+      if (game._last_angle != angle) {
+        game._last_angle = angle;
+        self.twist();
+      } 
+    }, true);
   };
 
   game.shiftBuildings = function (scene, direction) {
@@ -213,26 +237,6 @@ var Game = function () {
       }
     }
   };
-
-  game.rootScene.addEventListener('enterframe', function () {
-
-    game.shiftBuildings(self.upperScene, -1);
-    game.shiftBuildings(self.lowerScene, +1);
-
-  });
-
-  game.rootScene.addEventListener('touchstart', function () {
-    self.twist();
-  });
-
-  window.addEventListener('deviceorientation', function (event) {
-    // console.log(event.beta, event.gamma);
-    var orient = Math.round(event.gamma * 10);
-    if (game._last_orient != orient) {
-      game._last_orient = orient;
-      self.twist();
-    } 
-  }, true);
 
   game.start();
 };
@@ -267,9 +271,12 @@ Game.prototype.twist = function() {
     // game.rootScene.tl.scaleTo(1, this.twisted ? -1 : 1, 10, enchant.Easing.LINEAR);
     // game.rootScene.tl.rotateTo(this.twisted ? 180 : 0, 10, enchant.Easing.LINEAR);
 
-    // this.player.tl.fadeOut(0);
-    game.player.scale(-1, 1); // this.twisted
-    game.player.twist();
+    if (game.player) {
+      // this.player.tl.fadeOut(0);
+      game.player.scale(-1, 1); // this.twisted
+      game.player.twist();
+    }
+
     if (game.twisted) {
 
       this.upperScene.tl.rotateBy(-180, 10).then(function(){
