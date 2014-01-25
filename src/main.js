@@ -9,19 +9,60 @@ enchant();
  */
 window.onload = function () {
 
-    var game = new Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
+    var game = new Core(window.innerWidth  , window.innerHeight ); //screen res
     game.fps = 24;
-    game.preload("img/jeanjacques.png"/*'foo.png','bar.png'*/); //preload assets png, wav etc
+    game.preload("img/jeanjacques-j.png","img/jeanjacques-n.png","img/route-jour.png","img/route-nuit.png"/*'foo.png','bar.png'*/); //preload assets png, wav etc
     game.onload = function(){
-    ground = new Sprite(200,358);
+    jj = new Sprite(66,119);
+        jj2 = new Sprite(66,119);
     console.log("sprite ok")
-    ground.image=game.assets["img/jeanjacques.png"];
-    ground.x=0;
-    ground.y=0;
-    ground.frame=0;
+        jj.image=game.assets["img/jeanjacques-j.png"];
+        jj.x=window.innerWidth/2-jj.width/2;
+        jj.y= window.innerHeight/2-jj.height-150;
+        jj.frame=[0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
+
+        jj2.image=game.assets["img/jeanjacques-n.png"];
+        jj2.x=window.innerWidth/2-jj2.width/2;
+        jj2.y= window.innerHeight/2-jj2.height-150;
+        jj2.frame=[0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
+        jj2.tl.fadeOut(0);
+        jj2.scale(-1,1);
+
+        ground = new Sprite(95,166);
+        ground.image=game.assets["img/route-jour.png"];
+        ground.width=window.innerWidth*1.5;
+        ground.x=window.innerWidth/2-ground.width/2;
+        ground.y= window.innerHeight/2-ground.height;
+
+        ground2 = new Sprite(95,166);
+        ground2.image=game.assets["img/route-nuit.png"];
+        ground2.width=window.innerWidth*1.5;
+        ground2.x=window.innerWidth/2-ground2.width/2;
+        ground2.y= window.innerHeight/2-ground2.height;
+        //game.rootScene.addChild(ground);
+        jour = new Scene();
+        nuit = new Scene();
+        jour.addChild(ground);
+        nuit.addChild(ground2);
+        nuit.rotation = 180;
+        actors_jour = new Scene()
+        actors_jour.addChild(jj);
+        actors_nuit = new Scene()
+        actors_nuit.addChild(jj2);
+        game.rootScene.addChild(jour);
+        game.rootScene.addChild(nuit);
+        game.rootScene.addChild(actors_jour);
+        game.rootScene.addChild(actors_nuit);
+
+        ground.tl.moveBy(-700,0,200);
+        ground2.tl.moveBy(700,0,200);
+        jour.tl.delay(100).rotateBy(-180,50);
+        nuit.tl.delay(100).rotateBy(-180,50);
+        jj2.tl.delay(125).fadeIn(10);
+        jj.tl.delay(125).fadeOut(10);//scaleBy(-1,1,25,enchant.Easing.LINEAR);
         //ground.tl.moveBy(200,0,60,enchant.Easing.LINEAR)
-        ground.tl.delay(10).then(function (){ground.frame=1}).delay(10).then(function (){ground.frame=2}).delay(10).then(function (){ground.frame=1}).delay(10).then(function (){ground.frame=0}).loop();
-    game.rootScene.addChild(ground);
+
+
     }
 
     // var bear = new Sprite(32, 32);
