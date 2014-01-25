@@ -40,7 +40,7 @@ function addBuildings (game, scene, ground, modifier) {
       xoffset = 0,
       i = 0;
 
-  for (i = 0; xoffset < WIDTH * 6; i++) {
+  for (i = 0; xoffset < WIDTH * 3; i++) {
     var asset = game.assets['img/imm' + ((i%6)+1) + '-' + modifier + '-fs8.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
@@ -61,7 +61,7 @@ function addTrashes (game, scene, ground, modifier) {
       xoffset = 0,
       i = 0;
 
-  for (i = 0; xoffset < WIDTH * 6; i++) {
+  for (i = 0; xoffset < WIDTH * 3; i++) {
     var asset = game.assets['img/elem-poubelles-' + modifier + '.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
@@ -76,21 +76,22 @@ function addTrashes (game, scene, ground, modifier) {
 }
 
 // COMMONS
-function addCommon (game, scene, ground, prefix, modifier) {
+function addCommon (game, scene, ground, count, prefix, modifier) {
   var objects = [],
       xoffset = 0,
       i = 0;
 
-  for (i = 0; xoffset < WIDTH * 6; i++) {
+  for (i = 0; xoffset < WIDTH * count; i++) {
     var asset = game.assets['img/' + prefix + '-' + modifier + '.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
     objects[i].x = objects[i].width / 2+xoffset;
     objects[i].y = HEIGHT / 2 - ground.height - objects[i].height * 0.9;
     objects[i].touchEnabled = false;
+    objects[i].bycount = count;
     scene.addChild(objects[i]);
 
-    xoffset += WIDTH / 5 + Math.random() * 1000;
+    xoffset += WIDTH / count + Math.random() * 100 - 50;
   }
   return objects;
 }
@@ -113,8 +114,8 @@ var SceneOneUpper = Class.create(enchant.Scene, {
     this.objects = [
       [], // bin for new objects
       addBuildings(game, this, this.ground, 'j'),
-      addCommon(game, this, this.ground, 'elem-arbre', 'j'),
-      addCommon(game, this, this.ground, 'elem-lampe', 'j'),
+      addCommon(game, this, this.ground, 3, 'elem-arbre', 'j'),
+      addCommon(game, this, this.ground, 2, 'elem-lampe', 'j'),
       addTrashes(game, this, this.ground, 'j')
     ];
 
@@ -165,8 +166,8 @@ var SceneOneLower = Class.create(enchant.Scene, {
     this.objects = [
       [], // bin for new objects
       addBuildings(game, this, this.ground, 'n'),
-      addCommon(game, this, this.ground, 'elem-arbre', 'n'),
-      addCommon(game, this, this.ground, 'elem-lampe', 'n'),
+      addCommon(game, this, this.ground, 3, 'elem-arbre', 'n'),
+      addCommon(game, this, this.ground, 2, 'elem-lampe', 'n'),
       addTrashes(game, this, this.ground, 'n')
     ];
 
@@ -302,13 +303,13 @@ var Game = function () {
         // reuse object
         if (scene.objects[m][0].x < WIDTH * - 1.5) {
           tmp = scene.objects[m].shift();
-          tmp.x = scene.objects[m][last-1].x + scene.objects[m][last-1].width;
+          tmp.x = scene.objects[m][last-1].x + scene.objects[m][last-1].width + WIDTH / (scene.objects[m][last-1].by || 3);
           // console.log('push the unshifted to %o', tmp.x);
           scene.objects[m].push( tmp );
         }
         if (scene.objects[m][last].x > WIDTH * 1.5) {
           tmp = scene.objects[m].pop();
-          tmp.x = scene.objects[m][0].x - scene.objects[m][0].width;
+          tmp.x = scene.objects[m][0].x - scene.objects[m][0].width - WIDTH / (scene.objects[m][last-1].by || 3);
           scene.objects[m].unshift( tmp );
           // console.log('shift the poped to %o', tmp.x);
         }
