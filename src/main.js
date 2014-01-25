@@ -3,63 +3,106 @@
 
 enchant();
 
-(function() {
+
+var SceneOneUpper = Class.create(enchant.Sprite, {
+  initialize: function (game) {
+    enchant.Sprite.call(this, 32, 32);
+    this.image = game.assets['img/route-jour.png'];
+  }
+});
+SceneOneUpper.preload = ['img/route-jour.png'];
+
+var SceneOneLower = Class.create(enchant.Sprite, {
+  initialize: function (game) {
+    enchant.Sprite.call(this, 32, 32);
+    this.image = game.assets['img/route-jour.png'];
+  }
+});
+SceneOneLower.preload = ['img/route-jour.png'];
+
+
+
+
+(function () {
 
 var game;
+
+var settings = {
+  playerSprite: 'img/jeanjacques.png',
+  levels: [
+    {
+      upperScene: SceneOneUpper,
+      lowerScene: SceneOneLower,
+    }
+  ]
+};
 
 /**
  * Main
  */
 var Game = function () {
 
+  var self = this;
+
   game = new enchant.Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
   game.fps = 30;
-  game.preload('img/jeanjacques.png'); //preload assets png, wav etc
 
-  game.onload = function() {
+  var preload = [ settings.playerSprite ];
+
+  for (var i = 0; i < settings.levels.length; i++) {
+    var j;
+    for (j = 0; j < settings.levels[i].upperScene.preload.length; j++) {
+      preload.push(settings.levels[i].upperScene.preload[j]);
+    }
+    for (j = 0; j < settings.levels[i].lowerScene.preload.length; j++) {
+      preload.push(settings.levels[i].lowerScene.preload[j]);
+    }
+  }
+
+  game.preload(preload); //preload assets png, wav etc
+
+  game.onload = function () {
     game.player = new Player();
     game.rootScene.addChild(game.player);
 
-    game.upperScene = new UpperScene();
-    game.rootScene.addChild(game.upperScene);
-
-    game.lowerScene = new LowerScene();
-    game.rootScene.addChild(game.lowerScene);
+    self.loadLevel(0);
   };
-
-  game.twist = function () {
-
-  };
-
 
   game.start();
 };
 
-var UpperScene = Class.create(enchant.Sprite, {
-  initialize:function() {
-    enchant.Sprite.call(this, 32, 32);
-    this.image = game.assets['img/route-jour.png'];
-  }
-});
 
-var LowerScene = Class.create(enchant.Sprite, {
-  initialize:function() {
-    enchant.Sprite.call(this, 32, 32);
-    this.image = game.assets['img/route-jour.png'];
+Game.prototype.loadLevel = function(levelIndex) {
+
+  if (this.upperScene || this.lowerScene) {
+    game.rootScene.removeChild(this.upperScene);
+    game.rootScene.removeChild(this.lowerScene);    
   }
-});
+
+  this.upperScene = new settings.levels[levelIndex].upperScene(game);
+  game.rootScene.addChild(this.upperScene);
+
+  this.lowerScene = new settings.levels[levelIndex].lowerScene(game);
+  game.rootScene.addChild(this.lowerScene);
+};
+
+Game.prototype.twist = function() {
+
+};
 
 var Player = Class.create(enchant.Sprite, {
-  initialize:function() {
+  initialize: function () {
     var self = this;
 
     enchant.Sprite.call(this, 200, 358);
-    this.image = game.assets['img/jeanjacques.png'];
+    this.image = game.assets[settings.playerSprite];
     this.x = this.y = 0;
+    this.walking = false;
+    this.frame = 1;
     this.frames = [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 ];
 
     this.addEventListener('enterframe', function () {
-      self.frame = self.walking ? self.frames : 0;
+      self.frame = self.walking ? self.frames : 1;
     });
   }
 });
@@ -75,11 +118,11 @@ var GGJButton = Class.create(enchant.Sprite,{
     this.imageUp = game.assets[upPic];
     this.imageDown = game.assets[downPic];
     this.color='cyan';
-    this.addEventListener('touchstart', function() {
+    this.addEventListener('touchstart', function () {
       this.image = game.assets[downPic];
       this.textLabel.color = 'black';
     });
-    this.addEventListener('touchend', function() {
+    this.addEventListener('touchend', function () {
       this.image = game.assets[upPic];
       this.textLabel.color = this.color;
     });
@@ -103,6 +146,9 @@ var GGJButton = Class.create(enchant.Sprite,{
 */
 
 
-Game();
+
+
+
+new Game();
 
 })();
