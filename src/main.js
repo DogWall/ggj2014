@@ -2,8 +2,8 @@
 /* global enchant, Class */
 
 //init enchant.js
-HEIGHT = window.innerHeight;
-WIDTH = window.innerWidth;
+HEIGHT =window.innerHeight;
+WIDTH =window.innerWidth;
 
 enchant();
 
@@ -30,7 +30,14 @@ var SceneOneUpper = Class.create(enchant.Scene, {
     var self = this;
 
     enchant.Scene.call(this);
-
+      var assetroad = game.assets['img/decor-jour.png'];
+      var bg = new enchant.Sprite(assetroad.width, assetroad.height);
+      bg.image=assetroad;
+      bg.width=WIDTH
+      bg.x=WIDTH/2 -bg.width/2
+      bg.y=HEIGHT / 2 - bg.height
+      bg.touchEnabled = false;
+      this.addChild(bg);
     // ROAD
     var ground = new enchant.Sprite(game.assets['img/route-jour.png'].width, game.assets['img/route-jour.png'].height);
     ground.image = game.assets['img/route-jour.png'];
@@ -45,7 +52,7 @@ var SceneOneUpper = Class.create(enchant.Scene, {
 
     // BUILDINGS
     var xoffset = 0;
-    for (var i = 0; xoffset < WIDTH * 3; i++) {
+    for (var i = 0; xoffset < WIDTH * 2.5; i++) {
       var asset = game.assets['img/imm' + ((i%6)+1) + '-j.png'];
       var building = this.buildings[i] = new enchant.Sprite(asset.width, asset.height);
       building.image = asset;
@@ -62,19 +69,21 @@ var SceneOneUpper = Class.create(enchant.Scene, {
     game.onexitframe = function() {
 
       // METEORS EVERY 32 FRAMES
-      if (game.rootScene.age % 32 === 0) {
+      if (game.rootScene.age % 12 === 0) {
         var meteor = new enchant.Sprite(64, 64);
         meteor.image = game.assets['enchant.js/images/space1.png'];
-        meteor.x = WIDTH/2 - WIDTH/1.5;
-        meteor.y = - HEIGHT;
+        meteor.x = WIDTH/6  ;
+        meteor.y = - HEIGHT/2-100;
         self.addChild(meteor);
-        meteor.tl.moveBy(WIDTH / 1.5, HEIGHT, 30);
+        meteor.tl.moveTo(game.player.x+(0.5-Math.random())*game.player.width*10, game.player.y+100, 35,enchant.Easing.EXPO_EASEIN);
         meteor.onenterframe = function(){
-          if (! game.twisting && ! this._intersected) {
-            var now = new Date();
-            if (this.intersect(game.player) && now - game.player.inSceneSince > 1500) {
-              console.log('Yo, you are dead bitch, you were in scene since %o ms !', now - game.player.inSceneSince);
-              this._intersected = true;
+            //console.log('intersect')
+          if (! game.twisting /*&& ! this._intersected*/) {
+
+            //var now = new Date();
+            if (this.intersect(game.player) /*&& now - game.player.inSceneSince > 1500*/) {
+              //console.log('Yo, you are dead bitch, you were in scene since %o ms !', now - game.player.inSceneSince);
+              //this._intersected = true;
               self.removeChild(this);
             }
           }
@@ -86,7 +95,7 @@ var SceneOneUpper = Class.create(enchant.Scene, {
 
   }
 });
-SceneOneUpper.preload = ['img/route-jour.png'];
+SceneOneUpper.preload = ['img/route-jour.png','img/decor-jour.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-j.png'); }
 
 
@@ -97,7 +106,15 @@ var SceneOneLower = Class.create(enchant.Scene, {
     var self = this;
 
     enchant.Scene.call(this);
-
+      var assetroad = game.assets['img/decor-nuit.png'];
+      var bg = new enchant.Sprite(assetroad.width, assetroad.height);
+      bg.image=assetroad;
+      bg.width=WIDTH*2
+      bg.x=WIDTH/2 -bg.width/2
+      bg.y=HEIGHT / 2 - bg.height
+      bg.touchEnabled = false;
+      this.addChild(bg);
+      //console.log(bg)
     // ROAD
     var assetroad = game.assets['img/route-nuit.png'];
     var ground = new enchant.Sprite(assetroad.width, assetroad.height);
@@ -113,7 +130,9 @@ var SceneOneLower = Class.create(enchant.Scene, {
 
     // BUILDINGS
     var xoffset = 0;
-    for (var i = 0; xoffset < WIDTH * 3; i++) {
+    for (var i = 0; xoffset < WIDTH * 1.5; i++) {
+
+
       var asset = game.assets['img/imm' + ((i%6)+1) + '-n-fs8.png'];
       var building = this.buildings[i] = new enchant.Sprite(asset.width, asset.height);
       building.image = asset;
@@ -128,7 +147,7 @@ var SceneOneLower = Class.create(enchant.Scene, {
 
   }
 });
-SceneOneLower.preload = ['img/route-nuit.png', 'enchant.js/images/space1.png'];
+SceneOneLower.preload = ['img/route-nuit.png', 'enchant.js/images/space1.png','img/decor-nuit.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-n-fs8.png'); }
 
 
@@ -169,7 +188,7 @@ var Player = Class.create(enchant.Sprite, {
 
     this.x = WIDTH / 2;
     this.y = HEIGHT / 2 - this.height - 150;
-    this.frames = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
+    this.frames = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1];
     this.frame = this.frames;
 
     this.walking = true;
@@ -191,7 +210,7 @@ var Player = Class.create(enchant.Sprite, {
 
     //06.3 Within
 
-    this.frame = this.walking ? this.frames : 1;
+    //this.frame = this.walking ? this.frames : 1;
   }
 });
 
@@ -205,7 +224,7 @@ var Game = function () {
   var self = this;
 
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
-  game.fps = 24;
+  //game.fps = 10;
 
   var preload = [ settings.player.sprite_j, settings.player.sprite_n ];
 
@@ -220,7 +239,7 @@ var Game = function () {
   }
 
   game.preload(preload); //preload assets png, wav etc
-  game.fps = 24;
+ // game.fps = 24;
   game.onload = function () {
 
     self.backgroundScene = new enchant.Scene();
