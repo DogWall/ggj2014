@@ -2,8 +2,8 @@
 /* global enchant, Class */
 
 //init enchant.js
-var HEIGHT = window.innerHeight;
-var WIDTH = window.innerWidth;
+HEIGHT = window.innerHeight;
+WIDTH = window.innerWidth;
 
 enchant();
 
@@ -25,7 +25,7 @@ var SceneOneUpper = Class.create(enchant.Scene, {
     // // BUILDINGS
       xoffset =0;
       // BUILDINGS
-      for (var i = 0; i < 60; i++) {
+      for (var i = 0; i < 10; i++) {
           var asset = game.assets['img/imm' + ((i%6)+1) + '-j.png'];
           var building = new enchant.Sprite(asset.width, asset.height);
           building.image = asset;
@@ -64,7 +64,7 @@ var SceneOneLower = Class.create(enchant.Scene, {
 
     xoffset =0;
     // BUILDINGS
-    for (var i = 0; i < 60; i++) {
+    for (var i = 0; i < 10; i++) {
        var asset = game.assets['img/imm' + ((i%6)+1) + '-n.png'];
        var building = new enchant.Sprite(asset.width, asset.height);
        building.image = asset;
@@ -93,12 +93,12 @@ var settings = {
   player: {
     lives: 3,
     sprite_j: 'img/jeanjacques-j.png',
-    sprite_n: 'img/jeanjacques-n.png',
+    sprite_n: 'img/jeanjacques-n.png'
   },
   levels: [
     {
       upperScene: SceneOneUpper,
-      lowerScene: SceneOneLower,
+      lowerScene: SceneOneLower
     }
   ]
 };
@@ -125,10 +125,13 @@ var Player = Class.create(enchant.Sprite, {
 
     this.walking = true;
   },
-
+  twist: function(){
+        this.image = (game.twisted ? this.image_n : this.image_j);
+        this.tl.fadeOut(5).fadeIn(5);
+    },
   onenterframe: function() {
 
-    this.image = (game.twisted ? this.image_n : this.image_j);
+
 
     //06.2 Intersect
 
@@ -180,7 +183,7 @@ var Game = function () {
 
 
   game.preload(preload); //preload assets png, wav etc
-
+    game.fps=24;
   game.onload = function () {
 
     self.backgroundScene = new enchant.Scene();
@@ -242,12 +245,14 @@ Game.prototype.twist = function() {
 
   // this.player.tl.fadeOut(0);
   game.player.scale(-1, 1); // this.twisted
-
+  game.player.twist();
   if (game.twisted) {
     game.player.tl.delay(10).fadeIn(10);
     // jj.tl.fadeOut(10);
-    this.upperScene.tl.rotateBy(-180, 15);
+    this.upperScene.tl.rotateBy(-180, 15).then(function(){game.rootScene.removeChild(this.upperScene) });
     this.lowerScene.tl.rotateBy(-180, 15);
+
+
     //  this.rootScene.tl.rotateBy(-180,15);
     this.backSprite.tl.delay(15).then(function(){
       self.backSprite.backgroundColor = 'darkgrey';
@@ -256,8 +261,8 @@ Game.prototype.twist = function() {
   } else {
     game.player.tl.delay(10).fadeIn(10);
     // jj2.tl.fadeOut(10);
-    this.upperScene.tl.rotateBy(-180, 15);
-    this.lowerScene.tl.rotateBy(-180, 15);
+    this.upperScene.tl.rotateBy(180, 15);
+    this.lowerScene.tl.rotateBy(180, 15).then(function(){game.rootScene.removeChild(this.lowerScene) });;
      // this.rootScene.tl.rotateBy(180,15);
     this.backSprite.tl.delay(15).then(function(){
       self.backSprite.backgroundColor = 'lightblue';
