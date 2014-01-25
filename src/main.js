@@ -18,8 +18,13 @@ var Game = function () {
 
   game.onload = function() {
     game.player = new Player();
-    window.player = game.player;
     game.rootScene.addChild(game.player);
+
+    game.upperScene = new UpperScene();
+    game.rootScene.addChild(game.upperScene);
+
+    game.lowerScene = new LowerScene();
+    game.rootScene.addChild(game.lowerScene);
   };
 
   game.twist = function () {
@@ -30,7 +35,14 @@ var Game = function () {
   game.start();
 };
 
-var RoadDay = Class.create(enchant.Sprite, {
+var UpperScene = Class.create(enchant.Sprite, {
+  initialize:function() {
+    enchant.Sprite.call(this, 32, 32);
+    this.image = game.assets['img/route-jour.png'];
+  }
+});
+
+var LowerScene = Class.create(enchant.Sprite, {
   initialize:function() {
     enchant.Sprite.call(this, 32, 32);
     this.image = game.assets['img/route-jour.png'];
@@ -49,7 +61,6 @@ var Player = Class.create(enchant.Sprite, {
     this.addEventListener('enterframe', function () {
       self.frame = self.walking ? self.frames : 0;
     });
-
   }
 });
 
