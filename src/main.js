@@ -15,10 +15,10 @@ var SceneOneUpper = Class.create(enchant.Scene, {
     // ROAD
     var ground = new enchant.Sprite(game.assets['img/route-jour.png'].width, game.assets['img/route-jour.png'].height);
     ground.image = game.assets['img/route-jour.png'];
-    ground.width = WIDTH * 2;
+    ground.width = 20000;
     ground.x = WIDTH / 2 - ground.width / 2;
     ground.y = HEIGHT / 2 - ground.height;
-    ground.tl.moveBy(-1500, 0, 300);
+    ground.tl.moveBy(-1500, 0, 300).moveBy(1500, 0, 0).loop();
     ground.touchEnabled = false;
     this.addChild(ground);
 
@@ -57,10 +57,10 @@ var SceneOneLower = Class.create(enchant.Scene, {
     var assetroad = game.assets['img/route-nuit.png'];
     var ground = new enchant.Sprite(assetroad.width, assetroad.height);
     ground.image = assetroad;
-    ground.width = WIDTH * 2;
+    ground.width = 20000;
     ground.x = WIDTH / 2 - ground.width / 2;
     ground.y = HEIGHT / 2 - ground.height;
-    ground.tl.moveBy(1500, 0, 300);
+    ground.tl.moveBy(1500, 0, 300).moveBy(-1500, 0, 0).loop();
     ground.touchEnabled = false;
     this.addChild(ground);
 
@@ -69,7 +69,7 @@ var SceneOneLower = Class.create(enchant.Scene, {
     // BUILDINGS
     var xoffset = 0;
     for (var i = 0; xoffset < WIDTH * 3; i++) {
-      var asset = game.assets['img/imm' + ((i%6)+1) + '-n.png'];
+      var asset = game.assets['img/imm' + ((i%6)+1) + '-n-fs8.png'];
       var building = this.buildings[i] = new enchant.Sprite(asset.width, asset.height);
       building.image = asset;
       building.x = building.width / 2+xoffset;
@@ -85,7 +85,7 @@ var SceneOneLower = Class.create(enchant.Scene, {
   }
 });
 SceneOneLower.preload = ['img/route-nuit.png'];
-for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-n.png'); }
+for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-n-fs8.png'); }
 
 
 
@@ -96,8 +96,8 @@ var game;
 var settings = {
   player: {
     lives: 3,
-    sprite_j: 'img/jeanjacques-j.png',
-    sprite_n: 'img/jeanjacques-n.png'
+    sprite_j: 'img/jeanjacques-j-fs8.png',
+    sprite_n: 'img/jeanjacques-n-fs8.png'
   },
   levels: [
     {
@@ -130,12 +130,10 @@ var Player = Class.create(enchant.Sprite, {
     this.walking = true;
   },
   twist: function(){
-        this.image = (game.twisted ? this.image_n : this.image_j);
-        this.tl.fadeOut(5).fadeIn(5);
-    },
+    this.image = (game.twisted ? this.image_n : this.image_j);
+    this.tl.fadeOut(5).fadeIn(5);
+  },
   onenterframe: function() {
-
-
 
     //06.2 Intersect
 
@@ -204,14 +202,14 @@ var Game = function () {
       if (scene.buildings[0].x < WIDTH * - 1.5) {
         tmp = scene.buildings.shift();
         tmp.x = scene.buildings[last-1].x + scene.buildings[last-1].width;
-        console.log('push the unshifted to %o', tmp.x);
+        // console.log('push the unshifted to %o', tmp.x);
         scene.buildings.push( tmp );
       }
       if (scene.buildings[last].x > WIDTH * 1.5) {
         tmp = scene.buildings.pop();
         tmp.x = scene.buildings[0].x - scene.buildings[0].width;
         scene.buildings.unshift( tmp );
-        console.log('shift the poped to %o', tmp.x);
+        // console.log('shift the poped to %o', tmp.x);
       }
     }
   };
@@ -252,34 +250,42 @@ Game.prototype.twist = function() {
 
   var self = this;
 
-  game.twisted = !game.twisted;
-  // game.rootScene.tl.scaleTo(1, this.twisted ? -1 : 1, 10, enchant.Easing.LINEAR);
-  // game.rootScene.tl.rotateTo(this.twisted ? 180 : 0, 10, enchant.Easing.LINEAR);
+  if (! game.twisting) {
 
-  // this.player.tl.fadeOut(0);
-  game.player.scale(-1, 1); // this.twisted
-  game.player.twist();
-  if (game.twisted) {
-    game.player.tl.delay(10).fadeIn(10);
-    // jj.tl.fadeOut(10);
-    this.upperScene.tl.rotateBy(-180, 15).then(function(){game.rootScene.removeChild(this.upperScene) });
-    this.lowerScene.tl.rotateBy(-180, 15);
+    game.twisting = true;
+
+    game.twisted = !game.twisted;
+    // game.rootScene.tl.scaleTo(1, this.twisted ? -1 : 1, 10, enchant.Easing.LINEAR);
+    // game.rootScene.tl.rotateTo(this.twisted ? 180 : 0, 10, enchant.Easing.LINEAR);
+
+    // this.player.tl.fadeOut(0);
+    game.player.scale(-1, 1); // this.twisted
+    game.player.twist();
+    if (game.twisted) {
+      game.player.tl.delay(10).fadeIn(10);
+      // jj.tl.fadeOut(10);
+      this.upperScene.tl.rotateBy(-180, 15).then(function(){
+        game.rootScene.removeChild(this.upperScene);
+        game.twisting = false;
+      });
+      this.lowerScene.tl.rotateBy(-180, 15);
 
 
-    //  this.rootScene.tl.rotateBy(-180,15);
-    this.backSprite.tl.delay(15).then(function(){
-      self.backSprite.backgroundColor = 'darkgrey';
-    });
+      //  this.rootScene.tl.rotateBy(-180,15);
+      this.backSprite.tl.delay(15).then(function(){
+        self.backSprite.backgroundColor = 'darkgrey';
+      });
 
-  } else {
-    game.player.tl.delay(10).fadeIn(10);
-    // jj2.tl.fadeOut(10);
-    this.upperScene.tl.rotateBy(180, 15);
-    this.lowerScene.tl.rotateBy(180, 15).then(function(){game.rootScene.removeChild(this.lowerScene) });;
-     // this.rootScene.tl.rotateBy(180,15);
-    this.backSprite.tl.delay(15).then(function(){
-      self.backSprite.backgroundColor = 'lightblue';
-    });
+    } else {
+      game.player.tl.delay(10).fadeIn(10);
+      // jj2.tl.fadeOut(10);
+      this.upperScene.tl.rotateBy(180, 15);
+      this.lowerScene.tl.rotateBy(180, 15).then(function(){game.rootScene.removeChild(this.lowerScene); game.twisting = false; });
+       // this.rootScene.tl.rotateBy(180,15);
+      this.backSprite.tl.delay(15).then(function(){
+        self.backSprite.backgroundColor = 'lightblue';
+      });
+    }
   }
 
 };
