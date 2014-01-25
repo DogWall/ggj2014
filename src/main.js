@@ -4,6 +4,7 @@
 //init enchant.js
 HEIGHT = window.innerHeight;
 WIDTH = window.innerWidth;
+SPEED = 500;
 
 enchant();
 
@@ -15,7 +16,7 @@ function addRoad (game, scene, modifier, direction) {
   ground.width = 20000;
   ground.x = WIDTH / 2 - ground.width / 2;
   ground.y = HEIGHT / 2 - ground.height;
-  ground.tl.moveBy(direction * 1500, 0, 300).moveBy(- direction * 1500, 0, 0).loop();
+  ground.tl.moveBy(direction * SPEED, 0, 100).moveBy(- direction * SPEED, 0, 0).loop();
   ground.touchEnabled = false;
   scene.addChild(ground);
   return ground;
@@ -23,42 +24,60 @@ function addRoad (game, scene, modifier, direction) {
 
 // DECOR
 function addDecor (game, scene, modifier) {
-  var asset = game.assets['img/decor-' + modifier + '.png'];
-  var bg = new enchant.Sprite(asset.width, asset.height);
-  bg.image = asset;
-  bg.width = WIDTH;
-  bg.x = WIDTH / 2 - bg.width / 2;
-  bg.y = HEIGHT / 2 - bg.height;
-  bg.touchEnabled = false;
-  scene.addChild(bg);
+
 
   asset = game.assets['img/fond-' + modifier + '.png'];
   bg = new enchant.Sprite(asset.width, asset.height);
   bg.image = asset;
   bg.width = WIDTH;
-  bg.x = WIDTH / 2 - bg.width / 2;
+  bg.x = 0 ;
   bg.y = HEIGHT / 2 - bg.height;
   bg.touchEnabled = false;
   scene.addChild(bg);
+
+    var asset = game.assets['img/decor-' + modifier + '.png'];
+    var bg = new enchant.Sprite(asset.width, asset.height);
+    bg.image = asset;
+    bg.width = WIDTH;
+    bg.x = 0;
+    bg.y = HEIGHT / 2 - bg.height;
+    bg.touchEnabled = false;
+    scene.addChild(bg);
 
   return bg;
 }
 
 // BUILDINGS
 function addBuildings (game, scene, ground, modifier) {
-  var objects = [],
+    var objects = [],
       xoffset = 0,
       i = 0;
-
-  for (i = 0; xoffset < WIDTH * 3; i++) {
+    var direction
+    if (modifier == 'n')
+        direction = 1
+    else
+        direction = -1
+  for (i = 0; xoffset < WIDTH ; i++) {
     var asset = game.assets['img/imm' + ((i%6)+1) + '-' + modifier + '-fs8.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
-    objects[i].x = objects[i].width / 2+xoffset;
+    objects[i].x = asset.width/2+xoffset;
     objects[i].y = HEIGHT / 2 - ground.height - objects[i].height;
     // objects[i].bycount = 20;
     // objects[i].tl.moveBy(-1000, 0, 300);
     objects[i].touchEnabled = false;
+      objects[i].scene=scene;
+      if (modifier == 'n')
+          objects[i].onenterframe=function(){if(this.x>=WIDTH){
+
+              this.x=1-this.width +(WIDTH-this.x);//compensate frame exces
+          }}
+      else
+          objects[i].onenterframe=function(){if((this.x+this.width)<0){
+
+              this.x=WIDTH -(0-this.x-this.width);//compensate frame exces
+          }}
+      objects[i].tl.moveBy(direction * SPEED, 0, 100).moveBy(direction * SPEED, 0, 100).loop();
     scene.addChild(objects[i]);
 
     xoffset += asset.width;
@@ -69,10 +88,10 @@ function addBuildings (game, scene, ground, modifier) {
 // TRASHES
 function addTrashes (game, scene, ground, modifier) {
   var objects = [],
-      xoffset = 0,
+      xoffset = WIDTH;
       i = 0;
 
-  for (i = 0; xoffset < WIDTH * 3; i++) {
+  for (i = 0; xoffset < WIDTH * 2; i++) {
     var asset = game.assets['img/elem-poubelles-' + modifier + '.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
@@ -88,11 +107,15 @@ function addTrashes (game, scene, ground, modifier) {
 
 // COMMONS
 function addCommon (game, scene, ground, count, prefix, modifier) {
-  var objects = [],
-      xoffset = 0,
+  var objects = [];
+
+      if (modifier == 'n')
+      {xoffset = WIDTH;limit=0;}
+    else
+      {xoffset = 0;limit=WIDTH;}
       i = 0;
 
-  for (i = 0; xoffset < WIDTH * count; i++) {
+  for (i = 0; xoffset < limit * count; i++) {
     var asset = game.assets['img/' + prefix + '-' + modifier + '.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
@@ -101,7 +124,9 @@ function addCommon (game, scene, ground, count, prefix, modifier) {
     objects[i].touchEnabled = false;
     objects[i].bycount = count;
     scene.addChild(objects[i]);
-
+      if (modifier == 'n')
+          xoffset -= WIDTH / count - Math.random() * 100 + 50;
+      else
     xoffset += WIDTH / count + Math.random() * 100 - 50;
   }
   return objects;
@@ -197,7 +222,7 @@ var settings = {
   player: {
     lives: 3,
     sprite_j: 'img/jeanjacques-j-fs8.png',
-    sprite_n: 'img/jeanjacques-n-fs8.png'
+    sprite_n: 'img/darkjj.png'
   },
   levels: [
     {
@@ -304,35 +329,36 @@ var Game = function () {
 
   game.shiftObjects = function (scene, direction) {
     // for each type
-    if (scene.objects && scene.objects.length > 0) {
-      for (var m = 0; m < scene.objects.length; m++) {
+    //if (scene.objects && scene.objects.length > 0) {
+    //  for (var m = 0; m < scene.objects.length; m++) {
 
-        var tmp, last = scene.objects[m].length - 1;
-        if (last < 0) { continue; }
+        //var tmp, last = scene.objects[m].length - 1;
+        //if (last < 0) { continue; }
 
         // move all the things
-        for (var i = 0; i <= last; i++) {
-          scene.objects[m][i].x += (10 * direction);
-        }
+        //for (var i = 0; i <= last; i++) {
+        //  scene.objects[m][i].x += (10 * direction);
+        //}
 
         // never reuse the first batch (new objects)
-        if (m === 0) { continue; }
+    //    if (m === 0) { continue; }
 
         // reuse object
-        if (scene.objects[m][0].x < WIDTH * - 1.5) {
-          tmp = scene.objects[m].shift();
-          tmp.x = scene.objects[m][last-1].x + scene.objects[m][last-1].width /* + WIDTH / (scene.objects[m][last-1].bycount || 3) */;
-          // console.log('push the unshifted to %o', tmp.x);
-          scene.objects[m].push( tmp );
-        }
-        if (scene.objects[m][last].x > WIDTH * 1.5) {
-          tmp = scene.objects[m].pop();
-          tmp.x = scene.objects[m][0].x - scene.objects[m][0].width /* - WIDTH / (scene.objects[m][last-1].bycount || 3) */;
-          scene.objects[m].unshift( tmp );
-          // console.log('shift the poped to %o', tmp.x);
-        }
-      }
-    }
+
+//        if (direction==1 && (scene.objects[m][0].x < WIDTH *  1.5) || (direction==-1 && (scene.objects[m][0].x < WIDTH * - 1.5))) {
+//          tmp = scene.objects[m].shift();
+//          tmp.x = scene.objects[m][last-1].x + scene.objects[m][last-1].width /* + WIDTH / (scene.objects[m][last-1].bycount || 3) */;
+//          //console.log('push the unshifted to %o', tmp.x);
+//          scene.objects[m].push( tmp );
+//        }
+//        if (direction==-1 &&(scene.objects[m][last].x > WIDTH * 1.5) ||direction==1 &&(scene.objects[m][last].x > WIDTH * -1.5) ) {
+//          tmp = scene.objects[m].pop();
+//          tmp.x = scene.objects[m][0].x - scene.objects[m][0].width /* - WIDTH / (scene.objects[m][last-1].bycount || 3) */;
+//          scene.objects[m].unshift( tmp );
+//          // console.log('shift the poped to %o', tmp.x);
+//        }
+    //  }
+   // }
   };
 
   game.rootScene.addEventListener('enterframe', function () {
@@ -381,15 +407,15 @@ Game.prototype.twist = function() {
     // game.rootScene.tl.rotateTo(this.twisted ? 180 : 0, 10, enchant.Easing.LINEAR);
 
     // this.player.tl.fadeOut(0);
-    game.player.scale(-1, 1); // this.twisted
+    //game.player.scale(-1, 1); // this.twisted
     game.player.twist();
     if (game.twisted) {
 
         self.sndJour.volume=0;
-
+        self.sndNuit.volume=1;
 
       this.upperScene.tl.rotateBy(-180, 10).then(function(){
-        game.twisting = false;self.sndNuit.volume=1;
+        game.twisting = false;//self.sndNuit.volume=1;
       });
       this.lowerScene.tl.rotateBy(-180, 10);
 
@@ -400,9 +426,11 @@ Game.prototype.twist = function() {
     } else {
 
         self.sndNuit.volume=0;
+        self.sndJour.volume=1;
         //self.sndNuit.tl.tween({volume:0,time:10});
       this.upperScene.tl.rotateBy(180, 10);
-      this.lowerScene.tl.rotateBy(180, 10).then(function(){game.twisting = false; self.sndJour.volume=1;});
+      this.lowerScene.tl.rotateBy(180, 10).then(function(){game.twisting = false; //self.sndJour.volume=1;
+       });
        // this.rootScene.tl.rotateBy(180,15);
 
     }
