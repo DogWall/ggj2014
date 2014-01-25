@@ -1,21 +1,21 @@
 
-/* global enchant, Class */
+/* global enchant, Class, HEIGHT, WIDTH */
 
 //init enchant.js
-HEIGHT =window.innerHeight;
-WIDTH =window.innerWidth;
+HEIGHT = window.innerHeight;
+WIDTH = window.innerWidth;
 
 enchant();
 
 // ROAD
 function addRoad (game, scene, modifier, direction) {
-  var asset = game.assets['img/route-' + modifier + '.png'];
+  var asset = game.assets['img/route-' + modifier + '-fs8.png'];
   var ground = new enchant.Sprite(asset.width, asset.height);
   ground.image = asset;
   ground.width = 20000;
   ground.x = WIDTH / 2 - ground.width / 2;
   ground.y = HEIGHT / 2 - ground.height;
-  ground.tl.moveBy(direction * 1500, 0, 300).moveBy(1500, 0, 0).loop();
+  ground.tl.moveBy(direction * 1500, 0, 300).moveBy(- direction * 1500, 0, 0).loop();
   ground.touchEnabled = false;
   scene.addChild(ground);
   return ground;
@@ -40,7 +40,7 @@ function addBuildings (game, scene, ground, modifier) {
       xoffset = 0,
       i = 0;
 
-  for (i = 0; xoffset < WIDTH * 3; i++) {
+  for (i = 0; xoffset < WIDTH * 6; i++) {
     var asset = game.assets['img/imm' + ((i%6)+1) + '-' + modifier + '-fs8.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
@@ -61,12 +61,12 @@ function addTrashes (game, scene, ground, modifier) {
       xoffset = 0,
       i = 0;
 
-  for (i = 0; xoffset < WIDTH * 3; i++) {
+  for (i = 0; xoffset < WIDTH * 6; i++) {
     var asset = game.assets['img/elem-poubelles-' + modifier + '.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
     objects[i].x = objects[i].width / 2+xoffset;
-    objects[i].y = HEIGHT / 2 - ground.height - objects[i].height;
+    objects[i].y = HEIGHT / 2 - ground.height - (Math.random() * objects[i].height * 0.8);
     objects[i].touchEnabled = false;
     scene.addChild(objects[i]);
 
@@ -74,6 +74,33 @@ function addTrashes (game, scene, ground, modifier) {
   }
   return objects;
 }
+
+// COMMONS
+function addCommon (game, scene, ground, prefix, modifier) {
+  var objects = [],
+      xoffset = 0,
+      i = 0;
+
+  for (i = 0; xoffset < WIDTH * 6; i++) {
+    var asset = game.assets['img/' + prefix + '-' + modifier + '.png'];
+    objects[i] = new enchant.Sprite(asset.width, asset.height);
+    objects[i].image = asset;
+    objects[i].x = objects[i].width / 2+xoffset;
+    objects[i].y = HEIGHT / 2 - ground.height - objects[i].height * 0.9;
+    objects[i].touchEnabled = false;
+    scene.addChild(objects[i]);
+
+    xoffset += WIDTH / 5 + Math.random() * 1000;
+  }
+  return objects;
+}
+
+
+
+
+
+
+//////////////////  SCENES  /////////////////////
 
 var SceneOneUpper = Class.create(enchant.Scene, {
   initialize: function (game) {
@@ -86,9 +113,10 @@ var SceneOneUpper = Class.create(enchant.Scene, {
     this.objects = [
       [], // bin for new objects
       addBuildings(game, this, this.ground, 'j'),
+      addCommon(game, this, this.ground, 'elem-arbre', 'j'),
+      addCommon(game, this, this.ground, 'elem-lampe', 'j'),
       addTrashes(game, this, this.ground, 'j')
     ];
-
 
     // METEORS
     game.rootScene.tl.delay(30).then(function() {
@@ -122,7 +150,7 @@ var SceneOneUpper = Class.create(enchant.Scene, {
 
   }
 });
-SceneOneUpper.preload = ['img/route-jour.png', 'img/elem-poubelles-j.png', 'img/decor-jour.png'];
+SceneOneUpper.preload = ['img/route-jour-fs8.png', 'img/elem-poubelles-j.png', 'img/elem-arbre-j.png', 'img/elem-lampe-j.png', 'img/decor-jour.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-j-fs8.png'); }
 
 
@@ -137,12 +165,14 @@ var SceneOneLower = Class.create(enchant.Scene, {
     this.objects = [
       [], // bin for new objects
       addBuildings(game, this, this.ground, 'n'),
+      addCommon(game, this, this.ground, 'elem-arbre', 'n'),
+      addCommon(game, this, this.ground, 'elem-lampe', 'n'),
       addTrashes(game, this, this.ground, 'n')
     ];
 
   }
 });
-SceneOneLower.preload = ['img/route-nuit.png', 'enchant.js/images/space1.png', 'img/elem-poubelles-n.png', 'img/decor-nuit.png'];
+SceneOneLower.preload = ['img/route-nuit-fs8.png', 'enchant.js/images/space1.png', 'img/elem-poubelles-n.png', 'img/elem-arbre-n.png', 'img/elem-lampe-n.png', 'img/decor-nuit.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-n-fs8.png'); }
 
 
