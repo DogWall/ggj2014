@@ -72,7 +72,7 @@ var SceneOneUpper = Class.create(enchant.Scene, {
       if (game.rootScene.age % 12 === 0) {
         var meteor = new enchant.Sprite(64, 64);
         meteor.image = game.assets['enchant.js/images/space1.png'];
-        meteor.x = WIDTH/6  ;
+        meteor.x = WIDTH/6 + WIDTH*(0.5-Math.random())  ;
         meteor.y = - HEIGHT/2-100;
         self.addChild(meteor);
         meteor.tl.moveTo(game.player.x+(0.5-Math.random())*game.player.width*10, game.player.y+100, 35,enchant.Easing.EXPO_EASEIN);
