@@ -207,14 +207,14 @@ var Player = Class.create(enchant.Sprite, {
     this.image_j = game.assets[settings.player.sprite_j];
     this.image_n = game.assets[settings.player.sprite_n];
 
-    enchant.Sprite.call(this, this.image_j.width, this.image_j.height);
+    //enchant.Sprite.call(this, this.image_j.width, this.image_j.height);
 
-    enchant.Sprite.call(this, this.image_j.width/3, this.image_j.height);
+    enchant.Sprite.call(this, this.image_j.width/5, this.image_j.height);
     this.image = this.image_j;
 
     this.x = WIDTH / 2;
     this.y = HEIGHT / 2 - this.height - 150;
-    this.frames = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2,1,1,1,1,1];
+    this.frames = [0,1,2,3,4,3,2,1];
     this.frame = this.frames;
 
     this.walking = true;
