@@ -26,11 +26,11 @@ var SceneOneUpper = Class.create(enchant.Scene, {
 
     // BUILDINGS
     var xoffset = 0;
-    for (var i = 0; xoffset < WIDTH * 2.5; i++) {
+    for (var i = 0; xoffset < WIDTH * 3; i++) {
       var asset = game.assets['img/imm' + ((i%6)+1) + '-j.png'];
       var building = this.buildings[i] = new enchant.Sprite(asset.width, asset.height);
       building.image = asset;
-      building.x = building.width +xoffset;
+      building.x = building.width / 2+xoffset;
       building.y = HEIGHT / 2 - ground.height - building.height;
       // building.tl.moveBy(-1000, 0, 300);
       building.touchEnabled = false;
@@ -68,15 +68,14 @@ var SceneOneLower = Class.create(enchant.Scene, {
 
     // BUILDINGS
     var xoffset = 0;
-    for (var i = 0; xoffset < WIDTH * 2; i++) {
+    for (var i = 0; xoffset < WIDTH * 3; i++) {
       var asset = game.assets['img/imm' + ((i%6)+1) + '-n-fs8.png'];
       var building = this.buildings[i] = new enchant.Sprite(asset.width, asset.height);
       building.image = asset;
-      building.x = asset.width+xoffset;
+      building.x = building.width / 2+xoffset;
       building.y = HEIGHT / 2 - ground.height - building.height;
       // building.tl.moveBy(1000, 0, 300);
       building.touchEnabled = false;
-
       this.addChild(building);
 
       xoffset += asset.width;
@@ -107,20 +106,9 @@ var settings = {
     }
   ]
 };
-/*
-* Dropping objects
- */
-Droppable = Class.create(enchant.Sprite, {
-    initialize: function (x,y) {
-        enchant.Sprite.call(x,y);
-        this.callback = function (){}
-    },
-    trajectory: function(){this.y+=3;},
-    onexitframe:function(){
-        if (this.intersect(game.player))
-            callback();
-    }
-});
+
+
+
 /**
  * Player
  */
@@ -138,7 +126,6 @@ var Player = Class.create(enchant.Sprite, {
     this.x = WIDTH / 2;
     this.y = HEIGHT / 2 - this.height - 150;
     this.frames = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
-     this.frame=this.frames;
 
     this.walking = true;
   },
@@ -148,12 +135,11 @@ var Player = Class.create(enchant.Sprite, {
   },
   onenterframe: function() {
 
-
     //06.2 Intersect
 
     //06.3 Within
 
-    //this.frame = this.walking ? this.frames : 1;
+    this.frame = this.walking ? this.frames : 1;
   }
 });
 
@@ -166,11 +152,8 @@ var Game = function () {
 
   var self = this;
 
-
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
-
   game.fps = 24;
-
 
   var preload = [ settings.player.sprite_j, settings.player.sprite_n ];
 
@@ -183,14 +166,10 @@ var Game = function () {
       preload.push(settings.levels[i].lowerScene.preload[j]);
     }
   }
-    preload.push("enchant.js/images/space1.png");
 
   game.preload(preload); //preload assets png, wav etc
-   // game.preload(["enchant.js/images/space1.png"])
-
   game.fps = 24;
   game.onload = function () {
-
 
     self.backgroundScene = new enchant.Scene();
     self.backSprite = new enchant.Sprite(WIDTH, HEIGHT);
@@ -208,43 +187,6 @@ var Game = function () {
     self.loadLevel(0);
     game.rootScene.addChild(game.playerScene);
     game.playerScene.y = HEIGHT / 2;
-
-      game.onexitframe = function() {
-
-          if (game.rootScene.age%8 == 0)
-          {
-
-              test = new Sprite(64,64);
-
-              test.image=game.assets["enchant.js/images/space1.png"]
-              test.x=WIDTH/2-WIDTH/1.5
-              test.y=-HEIGHT
-              game.rootScene.addChild(test)
-              console.log("incoming")
-              //test.x=this.player.x;
-              if (game.twisted){
-                  self.lowerScene.addChild(test);}
-              else{
-                  self.upperScene.addChild(test);}
-
-              test.tl.moveBy(WIDTH/1.5,HEIGHT,30);
-              test.onenterframe=function(){
-              if (!game.twisting)
-              {
-
-                if (this.intersect(game.player))
-                {
-                    console.log("Yo, you're dead bitch!")
-                }
-              }
-
-
-          }
-          }
-
-      }
-
-
   };
 
   game.shiftBuildings = function (scene, direction) {
