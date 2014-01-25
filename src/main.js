@@ -2,8 +2,8 @@
 /* global enchant, Class */
 
 //init enchant.js
-var HEIGHT = window.innerHeight;
-var WIDTH = window.innerWidth;
+HEIGHT = window.innerHeight;
+WIDTH = window.innerWidth;
 
 enchant();
 
@@ -19,25 +19,27 @@ var SceneOneUpper = Class.create(enchant.Scene, {
     ground.x = WIDTH / 2 - ground.width / 2;
     ground.y = HEIGHT / 2 - ground.height;
     ground.tl.moveBy(-1500, 0, 300);
-     ground.touchEnabled=false
+    ground.touchEnabled = false;
     this.addChild(ground);
 
-    // // BUILDINGS
-      xoffset =0;
-      // BUILDINGS
-      for (var i = 0; i < 60; i++) {
-          var asset = game.assets['img/imm' + ((i%6)+1) + '-j.png'];
-          var building = new enchant.Sprite(asset.width, asset.height);
-          building.image = asset;
-          building.x = building.width / 2+xoffset;
-          building.y = HEIGHT / 2 - ground.height - building.height;
-          building.tl.moveBy(-1000, 0, 300);
-          building.touchEnabled=false
-          this.addChild(building);
-          xoffset+=asset.width
-      }
+    this.buildings = [];
 
-    // this.actors = new Scene();
+    // BUILDINGS
+    var xoffset = 0;
+    for (var i = 0; xoffset < WIDTH * 3; i++) {
+      var asset = game.assets['img/imm' + ((i%6)+1) + '-j.png'];
+      var building = this.buildings[i] = new enchant.Sprite(asset.width, asset.height);
+      building.image = asset;
+      building.x = building.width / 2+xoffset;
+      building.y = HEIGHT / 2 - ground.height - building.height;
+      // building.tl.moveBy(-1000, 0, 300);
+      building.touchEnabled = false;
+      this.addChild(building);
+
+      xoffset += asset.width;
+    }
+
+    // this.actors = new enchant.Scene();
     // this.actors.addChild(jj);
   }
 });
@@ -54,27 +56,29 @@ var SceneOneLower = Class.create(enchant.Scene, {
     // ROAD
     var assetroad = game.assets['img/route-nuit.png'];
     var ground = new enchant.Sprite(assetroad.width, assetroad.height);
-      ground.image = assetroad
-      ground.width = WIDTH * 2;
-      ground.x = WIDTH / 2 - ground.width / 2;
-      ground.y = HEIGHT / 2 - ground.height;
-      ground.tl.moveBy(1500, 0, 300);
-      ground.touchEnabled=false
+    ground.image = assetroad;
+    ground.width = WIDTH * 2;
+    ground.x = WIDTH / 2 - ground.width / 2;
+    ground.y = HEIGHT / 2 - ground.height;
+    ground.tl.moveBy(1500, 0, 300);
+    ground.touchEnabled = false;
     this.addChild(ground);
 
-    xoffset =0;
-    // BUILDINGS
-    for (var i = 0; i < 60; i++) {
-       var asset = game.assets['img/imm' + ((i%6)+1) + '-n.png'];
-       var building = new enchant.Sprite(asset.width, asset.height);
-       building.image = asset;
-       building.x = building.width / 2+xoffset;
-       building.y = HEIGHT / 2 - ground.height - building.height;
-       building.tl.moveBy(1000, 0, 300);
-        building.touchEnabled=false
-       this.addChild(building);
+    this.buildings = [];
 
-        xoffset+=asset.width
+    // BUILDINGS
+    var xoffset = 0;
+    for (var i = 0; xoffset < WIDTH * 3; i++) {
+      var asset = game.assets['img/imm' + ((i%6)+1) + '-n.png'];
+      var building = this.buildings[i] = new enchant.Sprite(asset.width, asset.height);
+      building.image = asset;
+      building.x = building.width / 2+xoffset;
+      building.y = HEIGHT / 2 - ground.height - building.height;
+      // building.tl.moveBy(1000, 0, 300);
+      building.touchEnabled = false;
+      this.addChild(building);
+
+      xoffset += asset.width;
     }
 
 
@@ -162,23 +166,6 @@ var Game = function () {
     }
   }
 
-  /*
-        jj = new JeanJacques();
-        jj2.tl.fadeOut(0);
-        jj2.scale(-1,1);
-        jj2.onenterframe = function(){if (this.intersect(building2)) console.log("that's a hit");}
-
-
- 
-  
-        ground2.tl.moveBy(1500,0,300);
-  
-        building2.tl.moveBy(1000,0,300);
-        //scaleBy(-1,1,25,enchant.Easing.LINEAR);
-        //ground.tl.moveBy(200,0,60,enchant.Easing.LINEAR)
-  */
-
-
   game.preload(preload); //preload assets png, wav etc
 
   game.onload = function () {
@@ -193,13 +180,41 @@ var Game = function () {
     //game.rootScene.addChild(game.rootScene);
 
     game.player = new Player();
-    game.playerScene = new Scene();
+    game.playerScene = new enchant.Scene();
     game.playerScene.addChild(game.player);
 
     self.loadLevel(0);
-     game.rootScene.addChild(game.playerScene);
-      game.playerScene.y=HEIGHT/2;
+    game.rootScene.addChild(game.playerScene);
+    game.playerScene.y = HEIGHT / 2;
   };
+
+  game.rootScene.addEventListener('enterframe', function () {
+
+    if (self.upperScene.buildings && self.upperScene.buildings.length > 0) {
+      var tmp, last = self.upperScene.buildings.length - 1;
+
+      // move all the things
+      for (var i = 0; i <= last; i++) {
+        self.upperScene.buildings[i].x -= 10;
+      }
+
+
+      // reuse buildings
+      if (self.upperScene.buildings[0].x < WIDTH * - 1.5) {
+        tmp = self.upperScene.buildings.shift();
+        tmp.x = self.upperScene.buildings[last-1].x + self.upperScene.buildings[last-1].width;
+        console.log('push the unshifted to %o', tmp.x);
+        self.upperScene.buildings.push( tmp );
+      }
+      if (self.upperScene.buildings[last].x > WIDTH * 1.5) {
+        tmp = self.upperScene.buildings.pop();
+        tmp.x = self.upperScene.buildings[0].x - self.upperScene.buildings[0].width;
+        self.upperScene.buildings.unshift( tmp );
+        console.log('shift the poped to %o', tmp.x);
+      }
+
+    }
+  });
 
   game.rootScene.addEventListener('touchstart', function() {
     self.twist();
@@ -214,22 +229,16 @@ Game.prototype.loadLevel = function(levelIndex) {
   if (this.upperScene || this.lowerScene) {
     game.rootScene.removeChild(this.upperScene);
     game.rootScene.removeChild(this.lowerScene);
-
   }
- //   game.rootScene.removeChild(this.player);
 
   this.upperScene = new settings.levels[levelIndex].upperScene(game);
-  //this.upperScene.y = 0;
   game.rootScene.addChild(this.upperScene);
 
   this.lowerScene = new settings.levels[levelIndex].lowerScene(game);
-  //this.lowerScene.y = game.height / 2;
   this.lowerScene.rotation = -180;
   game.rootScene.addChild(this.lowerScene);
-    this.lowerScene.y=HEIGHT/2;
-    this.upperScene.y=HEIGHT/2;
-
-   // game.rootScene.addChild(game.player);
+  this.lowerScene.y = HEIGHT / 2;
+  this.upperScene.y = HEIGHT / 2;
 };
 
 Game.prototype.twist = function() {
