@@ -1,37 +1,47 @@
 
 /* global enchant, Class */
 
+//init enchant.js
+var HEIGHT = window.innerHeight *2;
+var WIDTH = window.innerWidth *2;
+
 enchant();
 
-var SceneOneUpper = Class.create(enchant.Group, {
+var SceneOneUpper = Class.create(enchant.Scene, {
   initialize: function (game) {
 
-    enchant.Group.call(this);
+    enchant.Scene.call(this);
 
     // ROAD
-    var ground = new enchant.Sprite(287,499);
+    var ground = new enchant.Sprite(game.assets['img/route-jour.png'].width, game.assets['img/route-jour.png'].height);
     ground.image = game.assets['img/route-jour.png'];
-    ground.width = 10000;
-    // ground.x = window.innerWidth/2-ground.width/2;
-    ground.x = 0;
-    ground.y = -30;
-    //ground.scale(0.33);
+    ground.width = WIDTH * 2;
+    ground.x = WIDTH / 2 - ground.width / 2;
+    ground.y = HEIGHT / 2 - ground.height;
+    ground.tl.moveBy(-1500, 0, 300);
     this.addChild(ground);
 
-    // BUILDINGS
-    for (var i = 0; i < 60; i++) {
-      var building = new enchant.Sprite(287, 499);
-      building.image = game.assets['img/imm' + ((i%6)+1) + '-j.png'];
-      building.x = i * 70;
-      building.y = -300;
-      building.scale(0.3, 0.3);
-      this.addChild(building);      
-    }
+    // // BUILDINGS
+    // for (var i = 0; i < 60; i++) {
+    //   var asset = game.assets['img/imm' + ((i%6)+1) + '-j.png'];
+    //   var building = new enchant.Sprite(asset.width, asset.height);
+    //   building.image = asset;
+    //   building.x = building.width / 2;
+    //   building.y = HEIGHT / 2 - ground.height - building.height;
 
+    //   building.tl.moveBy(-1000, 0, 300);
+
+    //   this.addChild(building);      
+    // }
+
+    // this.actors = new Scene();
+    // this.actors.addChild(jj);
   }
 });
 SceneOneUpper.preload = ['img/route-jour.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-j.png'); }
+
+
 
 var SceneOneLower = Class.create(enchant.Group, {
   initialize: function (game) {
@@ -39,24 +49,28 @@ var SceneOneLower = Class.create(enchant.Group, {
     enchant.Group.call(this);
 
     // ROAD
-    var ground = new enchant.Sprite(287, 499);
-    ground.image = game.assets['img/route-nuit.png'];
+    var assetroad = game.assets['img/route-nuit.png'];
+    var ground = new enchant.Sprite(assetroad.width, assetroad.height);
+    ground.image = assetroad;
     ground.width = 10000;
     // ground.x = window.innerWidth/2-ground.width/2;
     ground.x = 0;
     ground.y = -30;
     // ground.scale(0.33);
+    ground.tl.moveBy(-1500, 0, 300);
     this.addChild(ground);
 
-    // BUILDINGS
-    for (var i = 0; i < 60; i++) {
-      var building = new enchant.Sprite(287, 499);
-      building.image = game.assets['img/imm' + ((i%6)+1) + '-n.png'];
-      building.x = i * 70;
-      building.y = -300;
-      building.scale(0.3, 0.3);
-      this.addChild(building);      
-    }
+    // // BUILDINGS
+    // for (var i = 0; i < 60; i++) {
+    //   var asset = game.assets['img/imm' + ((i%6)+1) + '-n.png'];
+    //   var building = new enchant.Sprite(asset.width, asset.height);
+    //   building.image = asset;
+    //   building.x = building.width / 2;
+    //   building.y = HEIGHT / 2 - ground.height - building.height;
+    //   building.tl.moveBy(-1000, 0, 300);
+    //   this.addChild(building);      
+    // }
+
 
   }
 });
@@ -72,7 +86,8 @@ var game;
 var settings = {
   player: {
     lives: 3,
-    sprite: 'img/jeanjacques.png',
+    sprite_j: 'img/jeanjacques-j.png',
+    sprite_n: 'img/jeanjacques-n.png',
   },
   levels: [
     {
@@ -82,6 +97,43 @@ var settings = {
   ]
 };
 
+
+
+/**
+ * Player
+ */
+var Player = Class.create(enchant.Sprite, {
+  initialize: function () {
+
+    this.image_j = game.assets[settings.player.sprite_j];
+    this.image_n = game.assets[settings.player.sprite_n];
+
+    enchant.Sprite.call(this, this.image_j.width, this.image_j.height);
+
+    enchant.Sprite.call(this, this.image_j.width/3, this.image_j.height);
+    this.image = this.image_j;
+
+    this.x = WIDTH / 2;
+    this.y = HEIGHT / 2 - this.height - 150;
+    this.frames = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
+
+    this.walking = true;
+  },
+
+  onenterframe: function() {
+
+    this.image = (game.twisted ? this.image_n : this.image_j);
+
+    //06.2 Intersect
+
+    //06.3 Within
+
+    this.frame = this.walking ? this.frames : 1;
+  }
+});
+
+
+
 /**
  * Main
  */
@@ -89,10 +141,10 @@ var Game = function () {
 
   var self = this;
 
-  game = this.game = new enchant.Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
-  game.fps = 30;
+  game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
+  game.fps = 24;
 
-  var preload = [ settings.player.sprite ];
+  var preload = [ settings.player.sprite_j, settings.player.sprite_n ];
 
   for (var i = 0; i < settings.levels.length; i++) {
     var j;
@@ -104,9 +156,33 @@ var Game = function () {
     }
   }
 
+  /*
+        jj = new JeanJacques();
+        jj2.tl.fadeOut(0);
+        jj2.scale(-1,1);
+        jj2.onenterframe = function(){if (this.intersect(building2)) console.log("that's a hit");}
+
+
+ 
+  
+        ground2.tl.moveBy(1500,0,300);
+  
+        building2.tl.moveBy(1000,0,300);
+        //scaleBy(-1,1,25,enchant.Easing.LINEAR);
+        //ground.tl.moveBy(200,0,60,enchant.Easing.LINEAR)
+  */
+
+
   game.preload(preload); //preload assets png, wav etc
 
   game.onload = function () {
+
+    self.backgroundScene = new enchant.Scene();
+    self.backSprite = new enchant.Sprite(WIDTH, HEIGHT);
+    self.backSprite.backgroundColor = 'lightblue';
+    self.backgroundScene.addChild(self.backSprite);
+    // game.rootScene.addChild(self.backgroundScene);
+
     game.stagesScene = new enchant.Group();
     game.rootScene.addChild(game.stagesScene);
 
@@ -115,6 +191,10 @@ var Game = function () {
 
     self.loadLevel(0);
   };
+
+  game.rootScene.addEventListener('touchstart', function() {
+    self.twist();
+  });
 
   game.start();
 };
@@ -133,100 +213,41 @@ Game.prototype.loadLevel = function(levelIndex) {
 
   this.lowerScene = new settings.levels[levelIndex].lowerScene(game);
   this.lowerScene.y = game.height / 2;
+  this.lowerScene.rotation = -180;
   game.stagesScene.addChild(this.lowerScene);
 };
 
 Game.prototype.twist = function() {
 
-  this.twisted = !this.twisted;
-  game.stagesScene.tl.scaleTo(1, this.twisted ? -1 : 1, 10, enchant.Easing.LINEAR);
+  var self = this;
+
+  game.twisted = !game.twisted;
+  // game.stagesScene.tl.scaleTo(1, this.twisted ? -1 : 1, 10, enchant.Easing.LINEAR);
   // game.stagesScene.tl.rotateTo(this.twisted ? 180 : 0, 10, enchant.Easing.LINEAR);
+
+  // this.player.tl.fadeOut(0);
+  game.player.scale(-1, 1); // this.twisted
+
+  if (game.twisted) {
+    game.player.tl.delay(10).fadeIn(10);
+    // jj.tl.fadeOut(10);
+    this.upperScene.tl.rotateBy(180, 15);
+    this.lowerScene.tl.rotateBy(-180, 15);
+    this.backSprite.tl.delay(15).then(function(){
+      self.backSprite.backgroundColor = 'darkgrey';
+    });
+
+  } else {
+    game.player.tl.delay(10).fadeIn(10);
+    // jj2.tl.fadeOut(10);
+    this.upperScene.tl.rotateBy(-180, 15);
+    this.lowerScene.tl.rotateBy(180, 15);
+    this.backSprite.tl.delay(15).then(function(){
+      self.backSprite.backgroundColor = 'lightblue';
+    });
+  }
+
 };
-
-var Player = Class.create(enchant.Sprite, {
-  initialize: function () {
-    var self = this;
-
-    enchant.Sprite.call(this, 200, 358);
-    this.image = game.assets[settings.player.sprite];
-    this.x = this.y = 0;
-    this.scale(0.3, 0.3);
-    this.lives = settings.player.lives;
-    this.walking = true;
-    this.frame = 1;
-    this.frames = [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 ];
-
-    this.addEventListener('enterframe', function () {
-
-      /*
-
-      //game.rootScene.scale(0.3,0.3);
-
-      game.rootScene.addEventListener('enterframe', function() {
-          if (jeanjack.intersect(ground)==true)
-          {
-              console.log("youpi!");
-          }
-          else
-              console.log("nope!");
-
-      })
-
-      //ground.tl.moveBy(200,0,60,enchant.Easing.LINEAR)
-      //ground.tl.delay(10).then(function (){ground.frame=1}).delay(10).then(function (){ground.frame=2}).delay(10).then(function (){ground.frame=1}).delay(10).then(function (){ground.frame=0}).loop();
-
-      game.rootScene.addChild(ground);
-      game.rootScene.addChild(jeanjack);
-      // 
-
-      */
-     
-
-      self.frame = self.walking ? self.frames : 1;
-    });
-  }
-});
-
-/*
-var GGJButton = Class.create(enchant.Sprite,{
-  initialize: function(x, y, scene, height, width, upPic, downPic, text) {
-    enchant.Sprite.call(this,width,height);
-    this.x = x;
-    this.y = y;
-    scene.addChild(this);
-    this.image = game.assets[upPic];
-    this.imageUp = game.assets[upPic];
-    this.imageDown = game.assets[downPic];
-    this.color='cyan';
-    this.addEventListener('touchstart', function () {
-      this.image = game.assets[downPic];
-      this.textLabel.color = 'black';
-    });
-    this.addEventListener('touchend', function () {
-      this.image = game.assets[upPic];
-      this.textLabel.color = this.color;
-    });
-    this.textLabel = new enchant.Label();
-    this.textLabel.text = text;
-    this.textLabel.x = x + 10;
-    this.textLabel.y = y + 5;
-    this.textLabel.width = width - 20;
-    if (height-10 > 5) {
-      this.textLabel.height = height-10;
-    } else {
-      this.textLabel.height = 6;
-    }
-    this.textLabel.font = this.textLabel.height + 'px sans';
-    this.textLabel.textAlign = 'center';
-    this.textLabel.touchEnabled = false;
-    this.textLabel.color = 'cyan';
-    scene.addChild(this.textLabel);
-  }
-});
-*/
-
-
-
 
 
 window.ggj = new Game();
