@@ -8,58 +8,79 @@ enchant();
  * Main
  */
 window.onload = function () {
+    H = window.innerHeight *2;
+    W = window.innerWidth *2;
+    var game = new Core(W, H); //screen res
 
-    var game = new Core(window.innerWidth  , window.innerHeight ); //screen res
     game.fps = 24;
-    game.preload("img/jeanjacques-j.png","img/jeanjacques-n.png","img/route-jour.png","img/route-nuit.png"/*'foo.png','bar.png'*/); //preload assets png, wav etc
+    game.preload("img/jeanjacques-j.png","img/jeanjacques-n.png","img/route-jour.png","img/route-nuit.png","img/imm1-j.png","img/imm1-n.png"/*'foo.png','bar.png'*/); //preload assets png, wav etc
     game.onload = function(){
+        jour = new Scene();
+        nuit = new Scene();
+
     jj = new Sprite(66,119);
         jj2 = new Sprite(66,119);
     console.log("sprite ok")
         jj.image=game.assets["img/jeanjacques-j.png"];
-        jj.x=window.innerWidth/2-jj.width/2;
-        jj.y= window.innerHeight/2-jj.height-150;
+        jj.x=W/2-jj.width/2;
+        jj.y= H/2-jj.height-150;
         jj.frame=[0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
 
         jj2.image=game.assets["img/jeanjacques-n.png"];
-        jj2.x=window.innerWidth/2-jj2.width/2;
-        jj2.y= window.innerHeight/2-jj2.height-150;
+        jj2.x=W/2-jj2.width/2;
+        jj2.y= H/2-jj2.height-150;
         jj2.frame=[0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
         jj2.tl.fadeOut(0);
         jj2.scale(-1,1);
 
         ground = new Sprite(95,166);
         ground.image=game.assets["img/route-jour.png"];
-        ground.width=window.innerWidth*1.5;
-        ground.x=window.innerWidth/2-ground.width/2;
-        ground.y= window.innerHeight/2-ground.height;
+        ground.width=W*2;
+        ground.x=W/2-ground.width/2;
+        ground.y= H/2-ground.height;
 
         ground2 = new Sprite(95,166);
         ground2.image=game.assets["img/route-nuit.png"];
-        ground2.width=window.innerWidth*1.5;
-        ground2.x=window.innerWidth/2-ground2.width/2;
-        ground2.y= window.innerHeight/2-ground2.height;
+        ground2.width=W*2;
+        ground2.x=W/2-ground2.width/2;
+        ground2.y= H/2-ground2.height;
+
+        building =new Sprite(game.assets["img/imm1-j.png"].width,game.assets["img/imm1-j.png"].height);
+        building.image=game.assets["img/imm1-j.png"];
+        building.x=building.width/2;
+        building.y=H/2-ground.height-building.height;
+
+        building2 =new Sprite(game.assets["img/imm1-n.png"].width,game.assets["img/imm1-n.png"].height);
+        building2.image=game.assets["img/imm1-n.png"];
+        building2.x=building2.width/2;
+        building2.y=H/2-ground2.height-building2.height;
+
         //game.rootScene.addChild(ground);
-        jour = new Scene();
-        nuit = new Scene();
+       // nuit.tl;//rotation=180 does not work ...
+        nuit.rotation=-180;
         jour.addChild(ground);
+        jour.addChild(building);
         nuit.addChild(ground2);
-        nuit.rotation = 180;
+        nuit.addChild(building2);
+
         actors_jour = new Scene()
         actors_jour.addChild(jj);
         actors_nuit = new Scene()
         actors_nuit.addChild(jj2);
-        game.rootScene.addChild(jour);
         game.rootScene.addChild(nuit);
+        game.rootScene.addChild(jour);
+
         game.rootScene.addChild(actors_jour);
         game.rootScene.addChild(actors_nuit);
 
-        ground.tl.moveBy(-700,0,200);
-        ground2.tl.moveBy(700,0,200);
-        jour.tl.delay(100).rotateBy(-180,50);
-        nuit.tl.delay(100).rotateBy(-180,50);
-        jj2.tl.delay(125).fadeIn(10);
-        jj.tl.delay(125).fadeOut(10);//scaleBy(-1,1,25,enchant.Easing.LINEAR);
+        ground.tl.moveBy(-900,0,300);
+        ground2.tl.moveBy(900,0,300);
+        building.tl.moveBy(-700,0,300);
+        building2.tl.moveBy(700,0,300);
+        jour.tl.delay(100).rotateBy(-180,25);
+        nuit.tl.delay(100).rotateBy(-180,25);
+        jj2.tl.delay(115).fadeIn(10);
+        jj.tl.delay(115).fadeOut(10);//scaleBy(-1,1,25,enchant.Easing.LINEAR);
         //ground.tl.moveBy(200,0,60,enchant.Easing.LINEAR)
 
 
