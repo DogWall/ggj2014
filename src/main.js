@@ -88,7 +88,7 @@ function addBuildings (game, scene, ground, modifier) {
 // TRASHES
 function addTrashes (game, scene, ground, modifier) {
   var objects = [],
-      xoffset = WIDTH;
+      xoffset = 0;
       i = 0;
     var direction
     if (modifier == 'n')
