@@ -28,7 +28,10 @@ SceneOneLower.preload = ['img/route-jour.png'];
 var game;
 
 var settings = {
-  playerSprite: 'img/jeanjacques.png',
+  player: {
+    lives: 3,
+    sprite: 'img/jeanjacques.png',
+  },
   levels: [
     {
       upperScene: SceneOneUpper,
@@ -47,7 +50,7 @@ var Game = function () {
   game = new enchant.Core(window.innerWidth / 2 , window.innerHeight / 2); //screen res
   game.fps = 30;
 
-  var preload = [ settings.playerSprite ];
+  var preload = [ settings.player.sprite ];
 
   for (var i = 0; i < settings.levels.length; i++) {
     var j;
@@ -95,8 +98,9 @@ var Player = Class.create(enchant.Sprite, {
     var self = this;
 
     enchant.Sprite.call(this, 200, 358);
-    this.image = game.assets[settings.playerSprite];
+    this.image = game.assets[settings.player.sprite];
     this.x = this.y = 0;
+    this.lives = settings.player.lives;
     this.walking = false;
     this.frame = 1;
     this.frames = [ 0, 0, 0, 0, 0, 1, 1, 1, 1, 1, 2, 2, 2, 2, 2 ];
