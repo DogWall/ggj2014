@@ -1,7 +1,36 @@
 
 //init enchant.js
-
+HEIGHT = window.innerHeight *2;
+WIDTH = window.innerWidth *2;
 enchant();
+
+
+JeanJacques = Class.create(Sprite, {
+    initialize: function(moment){
+        console.log("new jean jacques")
+        var ressource="";
+        if (moment == 0)
+            ressource="img/jeanjacques-j.png"
+        else
+            ressource="img/jeanjacques-n.png"
+
+        console.log(ressource)
+        console.log(Core)
+        Sprite.call(this, game.assets[ressource].width/3, game.assets[ressource].height);
+        this.image = game.assets[ressource];
+        this.x = WIDTH/2;
+        this.y = HEIGHT/2-this.height-150;
+        this.frame = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
+
+    },
+
+    onenterframe: function(){
+
+        //06.2 Intersect
+
+        //06.3 Within
+    }
+});
 
 
 /**
@@ -10,29 +39,59 @@ enchant();
 window.onload = function () {
     H = window.innerHeight *2;
     W = window.innerWidth *2;
-    var game = new Core(W, H); //screen res
+    game = new Core(W, H); //screen res
+
+
+    /*JeanJacques = Class.Create(Sprite,{
+
+        initialize: function(){
+            var ressource="";
+            if (moment == DAY)
+                ressource="img/jeanjacques-j.png"
+            else
+                ressource="img/jeanjacques-n.png"
+            Sprite.call(this, game.assets[ressource].width, game.assets[ressource].height);
+            this.image = game.assets[ressource];
+            this.x = WIDTH/2;
+            this.y = HEIGHT/2-this.height-150;
+            this.frame = [0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
+            this.countDown = 0;
+        }
+    });*/
 
     game.fps = 24;
     game.preload("img/jeanjacques-j.png","img/jeanjacques-n.png","img/route-jour.png","img/route-nuit.png","img/imm1-j.png","img/imm1-n.png"/*'foo.png','bar.png'*/); //preload assets png, wav etc
     game.onload = function(){
         jour = new Scene();
         nuit = new Scene();
+        fond = new Scene();
+        foobar = new Sprite(W,H);
+        foobar.backgroundColor='lightblue'
+        fond.addChild(foobar);
+        jj = new JeanJacques(0);
+        jj2 = new JeanJacques(1);
+        jj2.tl.fadeOut(0);
+        jj2.scale(-1,1);
+        jj2.onenterframe = function(){if (this.intersect(building2)) console.log("that's a hit");}
+        /*
+        jj = new Sprite(66,119);
 
-    jj = new Sprite(66,119);
-        jj2 = new Sprite(66,119);
-    console.log("sprite ok")
+            console.log("sprite ok")
         jj.image=game.assets["img/jeanjacques-j.png"];
         jj.x=W/2-jj.width/2;
         jj.y= H/2-jj.height-150;
         jj.frame=[0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
-
+        */
+        /*
+        jj2 = new Sprite(66,119);
         jj2.image=game.assets["img/jeanjacques-n.png"];
         jj2.x=W/2-jj2.width/2;
         jj2.y= H/2-jj2.height-150;
         jj2.frame=[0,0,0,0,0,1,1,1,1,1,2,2,2,2,2];
         jj2.tl.fadeOut(0);
         jj2.scale(-1,1);
-
+        jj2.onenterframe = function(){if (this.intersect(building2)) console.log("that's a hit");}
+    */
         ground = new Sprite(95,166);
         ground.image=game.assets["img/route-jour.png"];
         ground.width=W*2;
@@ -67,21 +126,40 @@ window.onload = function () {
         actors_jour.addChild(jj);
         actors_nuit = new Scene()
         actors_nuit.addChild(jj2);
+        game.rootScene.addChild(fond);
         game.rootScene.addChild(nuit);
         game.rootScene.addChild(jour);
 
         game.rootScene.addChild(actors_jour);
         game.rootScene.addChild(actors_nuit);
 
-        ground.tl.moveBy(-900,0,300);
-        ground2.tl.moveBy(900,0,300);
-        building.tl.moveBy(-700,0,300);
-        building2.tl.moveBy(700,0,300);
-        jour.tl.delay(100).rotateBy(-180,25);
-        nuit.tl.delay(100).rotateBy(-180,25);
-        jj2.tl.delay(115).fadeIn(10);
-        jj.tl.delay(115).fadeOut(10);//scaleBy(-1,1,25,enchant.Easing.LINEAR);
+        ground.tl.moveBy(-1500,0,300);
+        ground2.tl.moveBy(1500,0,300);
+        building.tl.moveBy(-1000,0,300);
+        building2.tl.moveBy(1000,0,300);
+        //scaleBy(-1,1,25,enchant.Easing.LINEAR);
         //ground.tl.moveBy(200,0,60,enchant.Easing.LINEAR)
+        game.rootScene.addEventListener('touchstart', function() {
+
+            if (jj2.opacity == 0)
+            {
+            jj2.tl.delay(10).fadeIn(10);
+            jj.tl.fadeOut(10);
+                jour.tl.rotateBy(-180,15);
+                nuit.tl.rotateBy(-180,15);
+                foobar.tl.delay(15).then(function(){foobar.backgroundColor='darkgrey'})
+            }
+            else
+            {
+            jj.tl.delay(10).fadeIn(10);
+            jj2.tl.fadeOut(10);
+                jour.tl.rotateBy(180,15);
+                nuit.tl.rotateBy(180,15);
+                foobar.tl.delay(15).then(function(){foobar.backgroundColor='lightblue'})
+
+            }
+
+        });
 
 
     }
