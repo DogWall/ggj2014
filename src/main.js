@@ -90,14 +90,30 @@ function addTrashes (game, scene, ground, modifier) {
   var objects = [],
       xoffset = WIDTH;
       i = 0;
+    var direction
+    if (modifier == 'n')
+        direction = 1
+    else
+        direction = -1
 
-  for (i = 0; xoffset < WIDTH * 2; i++) {
+  for (i = 0; xoffset < WIDTH ; i++) {
     var asset = game.assets['img/elem-poubelles-' + modifier + '.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
     objects[i].x = objects[i].width / 2+xoffset;
     objects[i].y = HEIGHT / 2 - ground.height - (Math.random() * objects[i].height * 0.8);
     objects[i].touchEnabled = false;
+      if (modifier == 'n')
+          objects[i].onenterframe=function(){if(this.x>=WIDTH){
+
+              this.x=1-this.width +(WIDTH-this.x);//compensate frame exces
+          }}
+      else
+          objects[i].onenterframe=function(){if((this.x+this.width)<0){
+
+              this.x=WIDTH -(0-this.x-this.width);//compensate frame exces
+          }}
+      objects[i].tl.moveBy(direction * SPEED, 0, 100).moveBy(direction * SPEED, 0, 100).loop();
     scene.addChild(objects[i]);
 
     xoffset += WIDTH / 5 + Math.random() * 1000;
@@ -108,14 +124,19 @@ function addTrashes (game, scene, ground, modifier) {
 // COMMONS
 function addCommon (game, scene, ground, count, prefix, modifier) {
   var objects = [];
-
+    xoffset=0
       if (modifier == 'n')
       {xoffset = WIDTH;limit=0;}
     else
       {xoffset = 0;limit=WIDTH;}
       i = 0;
+    var direction
+    if (modifier == 'n')
+        direction = 1
+    else
+        direction = -1
 
-  for (i = 0; xoffset < limit * count; i++) {
+  for (i = 0; xoffset < limit; i++) {
     var asset = game.assets['img/' + prefix + '-' + modifier + '.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
@@ -123,6 +144,17 @@ function addCommon (game, scene, ground, count, prefix, modifier) {
     objects[i].y = HEIGHT / 2 - ground.height - objects[i].height * 0.9;
     objects[i].touchEnabled = false;
     objects[i].bycount = count;
+      if (modifier == 'n')
+          objects[i].onenterframe=function(){if(this.x>=WIDTH){
+
+              this.x=1-this.width +(WIDTH-this.x);//compensate frame exces
+          }}
+      else
+          objects[i].onenterframe=function(){if((this.x+this.width)<0){
+
+              this.x=WIDTH -(0-this.x-this.width);//compensate frame exces
+          }}
+      objects[i].tl.moveBy(direction * SPEED, 0, 100).moveBy(direction * SPEED, 0, 100).loop();
     scene.addChild(objects[i]);
       if (modifier == 'n')
           xoffset -= WIDTH / count - Math.random() * 100 + 50;
