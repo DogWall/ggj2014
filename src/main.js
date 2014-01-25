@@ -31,6 +31,16 @@ function addDecor (game, scene, modifier) {
   bg.y = HEIGHT / 2 - bg.height;
   bg.touchEnabled = false;
   scene.addChild(bg);
+
+  asset = game.assets['img/fond-' + modifier + '.png'];
+  bg = new enchant.Sprite(asset.width, asset.height);
+  bg.image = asset;
+  bg.width = WIDTH;
+  bg.x = WIDTH / 2 - bg.width / 2;
+  bg.y = HEIGHT / 2 - bg.height;
+  bg.touchEnabled = false;
+  scene.addChild(bg);
+
   return bg;
 }
 
@@ -46,6 +56,7 @@ function addBuildings (game, scene, ground, modifier) {
     objects[i].image = asset;
     objects[i].x = objects[i].width / 2+xoffset;
     objects[i].y = HEIGHT / 2 - ground.height - objects[i].height;
+    // objects[i].bycount = 20;
     // objects[i].tl.moveBy(-1000, 0, 300);
     objects[i].touchEnabled = false;
     scene.addChild(objects[i]);
@@ -151,7 +162,7 @@ var SceneOneUpper = Class.create(enchant.Scene, {
 
   }
 });
-SceneOneUpper.preload = ['img/route-jour-fs8.png', 'img/elem-poubelles-j.png', 'img/elem-arbre-j.png', 'img/elem-lampe-j.png', 'img/decor-jour.png'];
+SceneOneUpper.preload = ['img/route-jour-fs8.png', 'img/elem-poubelles-j.png', 'img/elem-arbre-j.png', 'img/elem-lampe-j.png', 'img/fond-jour.png', 'img/decor-jour.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-j-fs8.png'); }
 
 
@@ -173,7 +184,7 @@ var SceneOneLower = Class.create(enchant.Scene, {
 
   }
 });
-SceneOneLower.preload = ['img/route-nuit-fs8.png', 'enchant.js/images/space1.png', 'img/elem-poubelles-n.png', 'img/elem-arbre-n.png', 'img/elem-lampe-n.png', 'img/decor-nuit.png'];
+SceneOneLower.preload = ['img/route-nuit-fs8.png', 'enchant.js/images/space1.png', 'img/elem-poubelles-n.png', 'img/elem-arbre-n.png', 'img/elem-lampe-n.png', 'img/fond-nuit.png', 'img/decor-nuit.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-n-fs8.png'); }
 
 
@@ -303,13 +314,13 @@ var Game = function () {
         // reuse object
         if (scene.objects[m][0].x < WIDTH * - 1.5) {
           tmp = scene.objects[m].shift();
-          tmp.x = scene.objects[m][last-1].x + scene.objects[m][last-1].width + WIDTH / (scene.objects[m][last-1].by || 3);
+          tmp.x = scene.objects[m][last-1].x + scene.objects[m][last-1].width /* + WIDTH / (scene.objects[m][last-1].bycount || 3) */;
           // console.log('push the unshifted to %o', tmp.x);
           scene.objects[m].push( tmp );
         }
         if (scene.objects[m][last].x > WIDTH * 1.5) {
           tmp = scene.objects[m].pop();
-          tmp.x = scene.objects[m][0].x - scene.objects[m][0].width - WIDTH / (scene.objects[m][last-1].by || 3);
+          tmp.x = scene.objects[m][0].x - scene.objects[m][0].width /* - WIDTH / (scene.objects[m][last-1].bycount || 3) */;
           scene.objects[m].unshift( tmp );
           // console.log('shift the poped to %o', tmp.x);
         }
