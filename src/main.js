@@ -45,7 +45,7 @@ function inverseFrameMove() {
 // ROAD
 function addRoad (game, scene, modifier, direction) {
 
-  var asset = game.assets['img/route-' + modifier + '-fs8.png'];
+  var asset = game.assets['distimg/route-' + modifier + '-fs8.png'];
   var ground = new enchant.Sprite(asset.width, asset.height);
   ground.image = asset;
   ground.width = 20000;
@@ -64,7 +64,7 @@ function addRoad (game, scene, modifier, direction) {
 // DECOR
 function addDecor (game, scene, modifier) {
 
-  var asset = game.assets['img/fond-' + modifier + '.png'];
+  var asset = game.assets['distimg/fond-' + modifier + '.png'];
   var bg = new enchant.Sprite(asset.width, asset.height);
   bg.image = asset;
   bg.width = WIDTH;
@@ -73,7 +73,7 @@ function addDecor (game, scene, modifier) {
   bg.touchEnabled = false;
   scene.addChild(bg);
 
-  asset = game.assets['img/decor-' + modifier + '.png'];
+  asset = game.assets['distimg/decor-' + modifier + '.png'];
   bg = new enchant.Sprite(asset.width, asset.height);
   bg.image = asset;
   bg.width = WIDTH;
@@ -93,7 +93,7 @@ function addBuildings (game, scene, ground, modifier) {
       i = 0;
 
   for (i = 0; xoffset < WIDTH ; i++) {
-    var asset = game.assets['img/imm' + ((i%6)+1) + '-' + modifier + '-fs8.png'];
+    var asset = game.assets['distimg/imm' + ((i%6)+1) + '-' + modifier + '-fs8.png'];
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
     objects[i].x = asset.width/2+xoffset;
@@ -129,7 +129,7 @@ function addTrashes (game, scene, ground, modifier) {
       direction = (modifier == 'n' ? 1 : -1),
       i = 0;
 
-  var asset = game.assets['img/elem-poubelles-' + modifier + '.png'];
+  var asset = game.assets['distimg/elem-poubelles-' + modifier + '.png'];
 
   for (i = 0; xoffset < WIDTH; i++) {
     objects[i] = new enchant.Sprite(asset.width, asset.height);
@@ -168,7 +168,7 @@ function addCommon (game, scene, ground, count, prefix, modifier) {
 
   var direction = (modifier == 'n') ? 1 : -1;
 
-  var asset = game.assets['img/' + prefix + '-' + modifier + '.png'];
+  var asset = game.assets['distimg/' + prefix + '-' + modifier + '.png'];
 
   for (i = 0; xoffset < limit; i++) {
     objects[i] = new enchant.Sprite(asset.width, asset.height);
@@ -204,10 +204,10 @@ function addCommon (game, scene, ground, count, prefix, modifier) {
 
 //////////////////  SCENES  /////////////////////
 
-var SceneOneUpper = Class.create(enchant.Scene, {
+var SceneOneUpper = Class.create(enchant.Group, {
   initialize: function (game) {
     var self = this;
-    enchant.Scene.call(this);
+    enchant.Group.call(this);
 
     this.bg = addDecor(game, this, 'jour');
     this.ground = addRoad(game, this, 'jour', -1);
@@ -221,7 +221,7 @@ var SceneOneUpper = Class.create(enchant.Scene, {
     ];
 
     // METEORS
-    var asset = game.assets['img/falling_meteorite.png'];
+    var asset = game.assets['distimg/falling_meteorite.png'];
     var meteorsPool = new Pool();
     for (var i = 0; i < 5; i++) {
       var meteor = new enchant.Sprite(asset.width, asset.height);
@@ -274,14 +274,14 @@ var SceneOneUpper = Class.create(enchant.Scene, {
 
   }
 });
-SceneOneUpper.preload = ['sounds/Jour_0_1.wav','sounds/Nuit_0_1.wav','img/route-jour-fs8.png', 'img/elem-poubelles-j.png', 'img/elem-arbre-j.png', 'img/elem-lampe-j.png', 'img/fond-jour.png', 'img/decor-jour.png'];
-for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-j-fs8.png'); }
+SceneOneUpper.preload = ['sounds/Jour_0_1.wav','sounds/Nuit_0_1.wav','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
+for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('distimg/imm' + (i+1) + '-j-fs8.png'); }
 
 
 
-var SceneOneLower = Class.create(enchant.Scene, {
+var SceneOneLower = Class.create(enchant.Group, {
   initialize: function (game) {
-    enchant.Scene.call(this);
+    enchant.Group.call(this);
 
     this.bg = addDecor(game, this, 'nuit');
     this.ground = addRoad(game, this, 'nuit', 1);
@@ -296,8 +296,8 @@ var SceneOneLower = Class.create(enchant.Scene, {
 
   }
 });
-SceneOneLower.preload = ['img/route-nuit-fs8.png', 'img/falling_meteorite.png', 'img/elem-poubelles-n.png', 'img/elem-arbre-n.png', 'img/elem-lampe-n.png', 'img/fond-nuit.png', 'img/decor-nuit.png'];
-for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-n-fs8.png'); }
+SceneOneLower.preload = ['distimg/route-nuit-fs8.png', 'distimg/falling_meteorite.png', 'distimg/elem-poubelles-n.png', 'distimg/elem-arbre-n.png', 'distimg/elem-lampe-n.png', 'distimg/fond-nuit.png', 'distimg/decor-nuit.png'];
+for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('distimg/imm' + (i+1) + '-n-fs8.png'); }
 
 
 
@@ -308,8 +308,8 @@ var game;
 var settings = {
   player: {
     lives: 3,
-    sprite_j: 'img/jeanjacques-j-fs8.png',
-    sprite_n: 'img/darkjj.png'
+    sprite_j: 'distimg/jeanjacques-j-fs8.png',
+    sprite_n: 'distimg/darkjj.png'
   },
   levels: [
     {
@@ -397,14 +397,14 @@ var Game = function () {
     self.sndNuit.play();
     self.sndNuit.volume = 0;
 
-    self.backgroundScene = new enchant.Scene();
+    self.backgroundScene = new enchant.Group();
     self.backSprite = new enchant.Sprite(WIDTH, HEIGHT);
     self.backSprite.backgroundColor = 'lightblue';
     self.backgroundScene.addChild(self.backSprite);
     // game.rootScene.addChild(self.backgroundScene);
 
     game.player = new Player();
-    game.playerScene = new enchant.Scene();
+    game.playerScene = new enchant.Group();
     game.playerScene.addChild(game.player);
 
     self.loadLevel(0);
@@ -453,9 +453,11 @@ Game.prototype.twist = function() {
       self.sndJour.volume = 0;
       self.sndNuit.volume = 1;
 
-      this.upperScene.tl.rotateBy(-180, 10).then(function(){
-        game.twisting = false;//self.sndNuit.volume=1;
-      });
+      this.upperScene.tl
+        .rotateBy(-180, 10)
+        .then(function(){
+          game.twisting = false;//self.sndNuit.volume=1;
+        });
 
       this.lowerScene.tl.rotateBy(-180, 10);
 
