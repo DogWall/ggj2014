@@ -237,7 +237,51 @@ function addCar (game, scene, ground,asset, direction,speed) {
     car.disableCollection();
 
 }
+
 //////////////////  SCENES  /////////////////////
+
+var SceneInfos = Class.create(enchant.Group, {
+    initialize: function (game) {
+      enchant.Group.call(this);
+
+      this.x = 100;
+      this.y = 100;
+      this.width = 3 * 70;
+      this.height = 70;
+      this.game = game;
+
+      this.hearts = [];
+
+      this.coeurgris = this.game.assets['distimg/coeurgris.png'];
+      this.coeurrouge = game.assets['distimg/coeurrouge.png'];
+
+      for (var i = 0; i < 3; i++) {
+        this.hearts[i] = new enchant.Sprite(this.coeurgris.width, this.coeurgris.height);
+        this.hearts[i].image = this.coeurrouge;
+        this.hearts[i].y = 10;
+        this.hearts[i].x = (3-i) * 70;
+        this.hearts[i].width = 62;
+        this.hearts[i].height = 53;
+        this.hearts[i].coeurrouge = true;
+        this.addChild(this.hearts[i]);
+      }
+    },
+    lostALife: function () {
+      var lost = false;
+
+      for (var i = 0; i < 3; i++) {
+        if (this.hearts[i].coeurrouge) {
+          this.hearts[i].image = this.coeurgris;
+          lost = true;
+          break;
+        }
+      }
+      if (! lost) {
+        this.game.loose();
+      }
+    }
+});
+
 var SceneOneUpperFG = Class.create(enchant.Group, {
     initialize: function (game) {
       var self = this;
@@ -254,13 +298,13 @@ var SceneOneUpperFG = Class.create(enchant.Group, {
       this.removeChild(this.ground);
       //this.ground = game.assets['distimg/route-jour.png'];
       this.objects = [
-          [], // bin for new objects
-         // addBuildings(game, this, this.ground, 'j'),
-          // [this.addChild(game.player)],
-          // [this.addChild(FGMarker)],
-          addCommon(game, this, this.ground, 3, 'elem-arbre', 'j'),
-          addCommon(game, this, this.ground, 2, 'elem-lampe', 'j'),
-          addTrashes(game, this, this.ground, 'j')
+        [], // bin for new objects
+        // addBuildings(game, this, this.ground, 'j'),
+        // [this.addChild(game.player)],
+        // [this.addChild(FGMarker)],
+        addCommon(game, this, this.ground, 3, 'elem-arbre', 'j'),
+        addCommon(game, this, this.ground, 2, 'elem-lampe', 'j'),
+        addTrashes(game, this, this.ground, 'j')
       ];
       addCar(game,this,this.ground,game.assets['img/elem-voit2-j.png'],1,0);
       addCar(game,this,this.ground,game.assets['img/elem-voit2-j.png'],1,30);
@@ -313,6 +357,7 @@ var SceneOneUpperFG = Class.create(enchant.Group, {
             } else if (! game.twisting && ! this._intersected) {
               if (this.intersect(game.player)) {
                 console.log('Yo, you are dead bitch !');
+                game.infos.lostALife();
                 this._intersected = true;
                 meteor.reset();
               }
@@ -435,10 +480,11 @@ var SceneOneLower = Class.create(enchant.Group, {
       addCommon(game, this, this.ground, 2, 'elem-lampe', 'n'),
       addTrashes(game, this, this.ground, 'n')
     ];
-      addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,0);
-      addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,30);
-      addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,15);
-      addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,7);
+
+    addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,0);
+    addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,30);
+    addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,15);
+    addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,7);
 
   }
 });
@@ -523,7 +569,7 @@ var Game = function () {
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
   game.fps = 30;
 
-  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3' ]
+  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3', 'distimg/coeurgris.png', 'distimg/coeurrouge.png' ]
     .concat(FALLING_OBJECTS)
     .concat(CARS_DAY)
     .concat(CARS_NIGHT);
@@ -562,7 +608,7 @@ var Game = function () {
     game.lowerScene = new enchant.Scene();
 
     game.player = new Player();
-    
+
     // game.playerScene = new enchant.Group();
     // game.playerScene.addChild(game.player);
     //game.upperScene.insertBefore(game.player,FGMarker);
@@ -599,7 +645,7 @@ Game.prototype.loadLevel = function(levelIndex) {
 
   if (this.upperScene || this.lowerScene) {
     game.rootScene.removeChild(this.upperScene);
-      game.rootScene.removeChild(this.upperScenefg);
+    game.rootScene.removeChild(this.upperScenefg);
     game.rootScene.removeChild(this.lowerScene);
   }
 
@@ -609,7 +655,7 @@ Game.prototype.loadLevel = function(levelIndex) {
 
   this.playerScene = new settings.levels[levelIndex].playerScene();
   this.player = new Player();
-  game.player=this.player;
+  game.player = this.player;
   this.playerScene.addChild(this.player);
 
   this.lowerScene = new settings.levels[levelIndex].lowerScene(game);
@@ -623,6 +669,10 @@ Game.prototype.loadLevel = function(levelIndex) {
   this.playerScene.y = HEIGHT / 2;
   this.upperScene.y = HEIGHT / 2;
   this.lowerScene.y = HEIGHT / 2;
+
+  game.infos = new SceneInfos(game);
+  game.rootScene.addChild(game.infos);
+
 };
 
 Game.prototype.twist = function() {
@@ -631,48 +681,43 @@ Game.prototype.twist = function() {
 
   if (! game.twisting){
 
-
     game.twisting = true;
 
     game.twisted = !game.twisted;
     game.player.twist();
-      if(game.twisted){
-    self.sndTransition.play();
-    self.sndJour.volume = 0.5;
 
-    self.upperScene.tl.rotateBy(-180, TRANSITION);self.upperScenefg.tl.rotateBy(-180, TRANSITION);
-    self.lowerScene.tl.rotateBy(-180, TRANSITION)
-      .then(function(){
+    if (game.twisted){
+      self.sndTransition.play();
+      self.sndJour.volume = 0.5;
+
+      self.upperScene.tl.rotateBy(-180, TRANSITION);self.upperScenefg.tl.rotateBy(-180, TRANSITION);
+      self.lowerScene.tl.rotateBy(-180, TRANSITION)
+        .then(function(){
+          game.twisting = false;
+          self.sndJour.volume = 0;
+          self.sndNuit.volume = 1;
+          self.sndTransition.stop();
+        });
+
+    } else {
+
+      self.sndTransition.play();
+      self.sndNuit.volume = 0.5;
+      self.upperScenefg.tl.rotateBy(180, TRANSITION);
+      self.upperScene.tl.rotateBy(180, TRANSITION).then(function(){
         game.twisting = false;
-        self.sndJour.volume = 0;
-        self.sndNuit.volume = 1;
+        self.sndNuit.volume = 0;
+        self.sndJour.volume = 1;
         self.sndTransition.stop();
-
       });
-
-  } else {
-
-    self.sndTransition.play();
-    self.sndNuit.volume = 0.5;
-          self.upperScenefg.tl.rotateBy(180, TRANSITION);
-    self.upperScene.tl.rotateBy(180, TRANSITION).then(function(){
-      game.twisting = false;
-      self.sndNuit.volume = 0;
-      self.sndJour.volume = 1;
-      self.sndTransition.stop();
-
-      // this.insertBefore(game.player, FGMarker);
-      // this.addChild(game.player);
-      // game.player.tl.fadeIn(10);
-      // self.sndNuit.volume=1;
-    });
-    self.lowerScene.tl.rotateBy(180, TRANSITION);
-
-    // this.rootScene.tl.rotateBy(180, 15);
-  }
+      self.lowerScene.tl.rotateBy(180, TRANSITION);
+    }
   }
 };
 
+Game.prototype.loose = function() {
+  alert('GAME OVER');
+};
 
 window.ggj = new Game();
 
