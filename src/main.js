@@ -4,9 +4,14 @@
 //init enchant.js
 HEIGHT = window.innerHeight;
 WIDTH = window.innerWidth;
-SPEED = 500;
+SPEED = 800;
+TRANSITION = 10
 
 enchant();
+var Marker = Class.create(enchant.Node,
+    {
+
+    });
 
 // ROAD
 function addRoad (game, scene, modifier, direction) {
@@ -18,6 +23,7 @@ function addRoad (game, scene, modifier, direction) {
   ground.y = HEIGHT / 2 - ground.height;
   ground.tl.moveBy(direction * SPEED, 0, 100).moveBy(- direction * SPEED, 0, 0).loop();
   ground.touchEnabled = false;
+    ground.disableCollection();
   scene.addChild(ground);
   return ground;
 }
@@ -33,6 +39,7 @@ function addDecor (game, scene, modifier) {
   bg.x = 0 ;
   bg.y = HEIGHT / 2 - bg.height;
   bg.touchEnabled = false;
+    bg.disableCollection()
   scene.addChild(bg);
 
     var asset = game.assets['img/decor-' + modifier + '.png'];
@@ -42,6 +49,7 @@ function addDecor (game, scene, modifier) {
     bg.x = 0;
     bg.y = HEIGHT / 2 - bg.height;
     bg.touchEnabled = false;
+    bg.disableCollection()
     scene.addChild(bg);
 
   return bg;
@@ -78,6 +86,7 @@ function addBuildings (game, scene, ground, modifier) {
               this.x=WIDTH -(0-this.x-this.width);//compensate frame exces
           }}
       objects[i].tl.moveBy(direction * SPEED, 0, 100).moveBy(direction * SPEED, 0, 100).loop();
+      //objects[i].disableCollection()
     scene.addChild(objects[i]);
 
     xoffset += asset.width;
@@ -103,6 +112,7 @@ function addTrashes (game, scene, ground, modifier) {
     objects[i].x = objects[i].width / 2+xoffset;
     objects[i].y = HEIGHT / 2 - ground.height - (Math.random() * objects[i].height * 0.8);
     objects[i].touchEnabled = false;
+      objects[i].disableCollection()
       if (modifier == 'n')
           objects[i].onenterframe=function(){if(this.x>=WIDTH){
 
@@ -144,6 +154,7 @@ function addCommon (game, scene, ground, count, prefix, modifier) {
     objects[i].y = HEIGHT / 2 - ground.height - objects[i].height * 0.9;
     objects[i].touchEnabled = false;
     objects[i].bycount = count;
+      objects[i].disableCollection()
       if (modifier == 'n')
           objects[i].onenterframe=function(){if(this.x>=WIDTH){
 
@@ -155,7 +166,8 @@ function addCommon (game, scene, ground, count, prefix, modifier) {
               this.x=WIDTH -(0-this.x-this.width);//compensate frame exces
           }}
       objects[i].tl.moveBy(direction * SPEED, 0, 100).moveBy(direction * SPEED, 0, 100).loop();
-    scene.addChild(objects[i]);
+   scene.addChild(objects[i]);
+
       if (modifier == 'n')
           xoffset -= WIDTH / count - Math.random() * 100 + 50;
       else
@@ -182,6 +194,8 @@ var SceneOneUpper = Class.create(enchant.Scene, {
     this.objects = [
       [], // bin for new objects
       addBuildings(game, this, this.ground, 'j'),
+       // [this.addChild(game.player)],
+        [this.addChild(FGMarker)],
       addCommon(game, this, this.ground, 3, 'elem-arbre', 'j'),
       addCommon(game, this, this.ground, 2, 'elem-lampe', 'j'),
       addTrashes(game, this, this.ground, 'j')
@@ -209,7 +223,8 @@ var SceneOneUpper = Class.create(enchant.Scene, {
         if (! game.twisting && ! this._intersected) {
           var now = new Date();
           if (this.intersect(game.player)) {
-            console.log('Yo, you are dead bitch, you were in scene since %o ms !', now - game.player.inSceneSince);
+              //Game.prototype.twist();
+            //console.log('Yo, you are dead bitch, you were in scene since %o ms !', now - game.player.inSceneSince);
             this._intersected = true;
             self.removeChild(this);
           }
@@ -219,7 +234,7 @@ var SceneOneUpper = Class.create(enchant.Scene, {
 
   }
 });
-SceneOneUpper.preload = ['sounds/Jour_0_1.wav','sounds/Nuit_0_1.wav','img/route-jour-fs8.png', 'img/elem-poubelles-j.png', 'img/elem-arbre-j.png', 'img/elem-lampe-j.png', 'img/fond-jour.png', 'img/decor-jour.png'];
+SceneOneUpper.preload = ['sounds/Transition_5.wav','sounds/Jour_1_0.wav','sounds/Nuit_1_0.wav','img/route-jour-fs8.png', 'img/elem-poubelles-j.png', 'img/elem-arbre-j.png', 'img/elem-lampe-j.png', 'img/fond-jour.png', 'img/decor-jour.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('img/imm' + (i+1) + '-j-fs8.png'); }
 
 
@@ -234,8 +249,10 @@ var SceneOneLower = Class.create(enchant.Scene, {
     this.objects = [
       [], // bin for new objects
       addBuildings(game, this, this.ground, 'n'),
-      addCommon(game, this, this.ground, 3, 'elem-arbre', 'n'),
-      addCommon(game, this, this.ground, 2, 'elem-lampe', 'n'),
+        //[this.addChild(game.player)],
+        [this.addChild(FGMarker)],
+      addCommon(game, game.lowerScenefg, this.ground, 3, 'elem-arbre', 'n'),
+      addCommon(game, game.lowerScenefg, this.ground, 2, 'elem-lampe', 'n'),
       addTrashes(game, this, this.ground, 'n')
     ];
 
@@ -292,11 +309,23 @@ var Player = Class.create(enchant.Sprite, {
       .then(function(){ 
         this.inSceneSince = new Date();
       })
-      .fadeOut(10)
+      .fadeOut(TRANSITION/2)
       .then(function(){
-          this.image = (game.twisted ? this.image_n : this.image_j);
+            if (game.twisted)
+            {
+                //game.upperScene.removeChild(this);
+                this.image = this.image_n ;
+                //game.lowerScene.addChild(this);
+            }
+            else
+            {
+               // game.lowerScene.removeChild(this);
+                this.image =  this.image_j;
+                //game.upperScene.addChild(this);
+            }
+
       })
-      .fadeIn(10);
+      .fadeIn(TRANSITION/2);
   },
   onenterframe: function() {
 
@@ -317,8 +346,13 @@ var Game = function () {
 
   var self = this;
 
+
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
   //game.fps = 10;
+   //// game.lowerScenefg=new Scene();
+   // game.upperScenefg=new Scene();
+   // game.upperScenefg.y = HEIGHT / 2;
+   // game.lowerScenefg.y = HEIGHT / 2;
 
   var preload = [ settings.player.sprite_j, settings.player.sprite_n ];
 
@@ -336,10 +370,13 @@ var Game = function () {
  // game.fps = 24;
   game.onload = function () {
 
-      self.sndJour= game.assets['sounds/Jour_0_1.wav'].clone()
+      BGMarker = new Marker();
+      FGMarker = new Marker();
+      self.sndTransition= game.assets['sounds/Transition_5.wav'].clone()
+      self.sndJour= game.assets['sounds/Jour_1_0.wav'].clone()
       self.sndJour.play();
 
-      self.sndNuit= game.assets['sounds/Nuit_0_1.wav'].clone()
+      self.sndNuit= game.assets['sounds/Nuit_1_0.wav'].clone()
       self.sndNuit.play();
       self.sndNuit.volume=0;
 
@@ -348,13 +385,17 @@ var Game = function () {
     self.backSprite.backgroundColor = 'lightblue';
     self.backgroundScene.addChild(self.backSprite);
     // game.rootScene.addChild(self.backgroundScene);
-
+      game.upperScene = new Scene()
+      game.lowerScene = new Scene()
     game.player = new Player();
     game.playerScene = new enchant.Scene();
     game.playerScene.addChild(game.player);
+      //game.upperScene.insertBefore(game.player,FGMarker);
+
 
     self.loadLevel(0);
     game.rootScene.addChild(game.playerScene);
+
     game.playerScene.y = HEIGHT / 2;
 
   };
@@ -413,16 +454,23 @@ Game.prototype.loadLevel = function(levelIndex) {
   if (this.upperScene || this.lowerScene) {
     game.rootScene.removeChild(this.upperScene);
     game.rootScene.removeChild(this.lowerScene);
+
   }
 
+
   this.upperScene = new settings.levels[levelIndex].upperScene(game);
+
   game.rootScene.addChild(this.upperScene);
 
   this.lowerScene = new settings.levels[levelIndex].lowerScene(game);
   this.lowerScene.rotation = -180;
+    game.lowerScenefg=-180
   game.rootScene.addChild(this.lowerScene);
-  this.lowerScene.y = HEIGHT / 2;
-  this.upperScene.y = HEIGHT / 2;
+    this.upperScene.y = HEIGHT / 2;
+    this.lowerScene.y = HEIGHT / 2;
+
+
+
 };
 
 Game.prototype.twist = function() {
@@ -443,13 +491,21 @@ Game.prototype.twist = function() {
     game.player.twist();
     if (game.twisted) {
 
-        self.sndJour.volume=0;
-        self.sndNuit.volume=1;
 
-      this.upperScene.tl.rotateBy(-180, 10).then(function(){
-        game.twisting = false;//self.sndNuit.volume=1;
-      });
-      this.lowerScene.tl.rotateBy(-180, 10);
+        self.sndTransition.play();self.sndJour.volume=0.5;
+
+       // self.upperScenefg.tl.rotateBy(-180, 10)
+        //self.upperScene.removeChild(self.player);
+        //self.playerScene.addChild(self.player);
+        self.upperScene.tl.rotateBy(-180, TRANSITION);
+        self.lowerScene.tl.rotateBy(-180, TRANSITION).then(function(){
+            game.twisting = false;self.sndJour.volume=0;self.sndNuit.volume=1;self.sndTransition.stop();
+
+           // this.insertBefore(game.player,FGMarker);
+           // this.addChild(game.player);
+            //self.sndNuit.volume=1;
+        });;
+      //  self.lowerScenefg.tl.rotateBy(-180, 10);
 
 
       //  this.rootScene.tl.rotateBy(-180,15);
@@ -457,12 +513,21 @@ Game.prototype.twist = function() {
 
     } else {
 
-        self.sndNuit.volume=0;
-        self.sndJour.volume=1;
+        self.sndTransition.play();self.sndNuit.volume=0.5;
+
         //self.sndNuit.tl.tween({volume:0,time:10});
-      this.upperScene.tl.rotateBy(180, 10);
-      this.lowerScene.tl.rotateBy(180, 10).then(function(){game.twisting = false; //self.sndJour.volume=1;
-       });
+       // self.upperScenefg.tl.rotateBy(180, 10);
+        //self.lowerScenefg.tl.rotateBy(180, 10);
+        self.upperScene.tl.rotateBy(180, TRANSITION).then(function(){
+            game.twisting = false; self.sndNuit.volume=0;self.sndJour.volume=1;self.sndTransition.stop();
+
+            //this.insertBefore(game.player,FGMarker);
+            //this.addChild(game.player);
+            //game.player.tl.fadeIn(10);
+            //self.sndNuit.volume=1;
+        });
+        self.lowerScene.tl.rotateBy(180, TRANSITION);
+
        // this.rootScene.tl.rotateBy(180,15);
 
     }
