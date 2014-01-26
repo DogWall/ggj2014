@@ -734,11 +734,9 @@ Game.prototype.twist = function() {
 };
 
 Game.prototype.loose = function() {
-  var self = this;
-  // alert('GAME OVER');
+  this.game.pause();
   setTimeout(function(){
-    self.game.pause();
-    window.location += '?sorry,_you_died';
+    window.location.reload();
   }, 3000);
 };
 
