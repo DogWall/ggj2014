@@ -1,11 +1,13 @@
 
-/* global enchant, Class, HEIGHT, WIDTH, SPEED, TRANSITION */
+/* global enchant, Class, HEIGHT, WIDTH, SPEED, TRANSITION, PLAYER_LIVES */
 
 //init enchant.js
 HEIGHT = window.innerHeight * 2;
 WIDTH = window.innerWidth * 2;
 SPEED = 800;
 TRANSITION = 10;
+
+PLAYER_LIVES = 3;
 
 var FALLING_OBJECTS = [
   'distimg/falling_alien.png', 'distimg/falling_baleine.png', 'distimg/falling_godzilla.png',
@@ -241,8 +243,14 @@ function addCar (game, scene, ground,asset, direction,speed) {
 //////////////////  SCENES  /////////////////////
 
 var SceneInfos = Class.create(enchant.Group, {
-    initialize: function (game) {
+    initialize: function (game, lives, onLoose) {
+
+      var self = this;
+
       enchant.Group.call(this);
+
+      this.lives = lives;
+      this.onLoose = onLoose;
 
       this.x = 100;
       this.y = 100;
@@ -254,6 +262,7 @@ var SceneInfos = Class.create(enchant.Group, {
 
       this.coeurgris = this.game.assets['distimg/coeurgris.png'];
       this.coeurrouge = game.assets['distimg/coeurrouge.png'];
+      this.coeurrouge.coeurrouge = true;
 
       for (var i = 0; i < 3; i++) {
         this.hearts[i] = new enchant.Sprite(this.coeurgris.width, this.coeurgris.height);
@@ -267,17 +276,15 @@ var SceneInfos = Class.create(enchant.Group, {
       }
     },
     lostALife: function () {
-      var lost = false;
-
       for (var i = 0; i < 3; i++) {
-        if (this.hearts[i].coeurrouge) {
+        if (this.hearts[i].image.coeurrouge) {
           this.hearts[i].image = this.coeurgris;
-          lost = true;
+          this.lives--;
           break;
         }
       }
-      if (! lost) {
-        this.game.loose();
+      if (this.lives <= 0) {
+        setTimeout(this.onLoose, 20);
       } else {
         setTimeout(function(){
           window.ggj.twist();
@@ -673,7 +680,7 @@ Game.prototype.loadLevel = function(levelIndex) {
   this.lowerScene.y = HEIGHT / 2;
   this.lowerScenefg.y = HEIGHT / 2;
 
-  game.infos = new SceneInfos(game);
+  game.infos = new SceneInfos(game, PLAYER_LIVES, this.loose.bind(this));
   game.rootScene.addChild(game.infos);
 };
 
@@ -727,9 +734,11 @@ Game.prototype.twist = function() {
 };
 
 Game.prototype.loose = function() {
-  alert('GAME OVER');
+  var self = this;
+  // alert('GAME OVER');
   setTimeout(function(){
-    window.location.reload();
+    self.game.pause();
+    window.location += '?sorry,_you_died';
   }, 3000);
 };
 
