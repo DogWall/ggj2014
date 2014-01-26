@@ -165,18 +165,16 @@ function addTrashes (game, scene, ground, modifier) {
 
 // COMMONS
 function addCommon (game, scene, ground, count, prefix, modifier) {
-  var objects = [],
-      xoffset = 0,
-      i = 0;
-
-  if (modifier == 'n') { xoffset = WIDTH; limit = 0; }
-  else { xoffset = 0; limit = WIDTH; }
+    var objects = [],
+        xoffset = 0,
+        direction = (modifier == 'n' ? 1 : -1),
+        i = 0;
 
   var direction = (modifier == 'n') ? 1 : -1;
 
   var asset = game.assets['distimg/' + prefix + '-' + modifier + '.png'];
 
-  for (i = 0; xoffset < limit; i++) {
+  for (i = 0; xoffset < WIDTH; i++) {
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
     objects[i].x = objects[i].width / 2+xoffset;
@@ -198,10 +196,7 @@ function addCommon (game, scene, ground, count, prefix, modifier) {
 
     scene.addChild(objects[i]);
 
-    if (modifier == 'n')
-      xoffset -= WIDTH / count - Math.random() * 100 + 50;
-    else
-      xoffset += WIDTH / count + Math.random() * 100 - 50;
+      xoffset += WIDTH / 5 + Math.random() * 1000;
   }
 
   return objects;
@@ -225,7 +220,7 @@ function addCar (game, scene, ground,asset, direction,speed) {
         car.y = HEIGHT/2 - asset.height*1.5;//ground.y + ground.width/2;
         car.tl.moveBy(WIDTH+car.width*50,0,150).moveTo(-asset.width*(1+speed) ,car.y,0).loop();
     }
-    console.log(car)
+
     car.touchEnabled = false;
     car.onenterframe = function () {
 
@@ -286,11 +281,11 @@ var SceneOneUpper = Class.create(enchant.Group, {
         meteor.tl
           .clear()
           .moveTo(game.player.x+(0.5-Math.random())*game.player.width*10, game.player.y+100, 35,enchant.Easing.EXPO_EASEIN)
+            .moveBy(-1 * SPEED*20, 0, 2000)
           .then(function(){
             meteor.onenterframe = function(){ };
             self.objects[0].push(meteor);
           })
-          .delay(100)
           .then(function(){
             self.removeChild(meteor);
             meteorsPool.add(meteor);
@@ -338,14 +333,18 @@ var SceneOneLower = Class.create(enchant.Group, {
       addBuildings(game, this, this.ground, 'n'),
       //[this.addChild(game.player)],
       //[this.addChild(FGMarker)],
-      addCommon(game, game.lowerScenefg, this.ground, 3, 'elem-arbre', 'n'),
-      addCommon(game, game.lowerScenefg, this.ground, 2, 'elem-lampe', 'n'),
+      addCommon(game, this, this.ground, 3, 'elem-arbre', 'n'),
+      addCommon(game, this, this.ground, 2, 'elem-lampe', 'n'),
       addTrashes(game, this, this.ground, 'n')
     ];
+      addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,0);
+      addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,30);
+      addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,15);
+      addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,7);
 
   }
 });
-SceneOneLower.preload = ['distimg/route-nuit-fs8.png', 'distimg/falling_meteorite.png', 'distimg/elem-poubelles-n.png', 'distimg/elem-arbre-n.png', 'distimg/elem-lampe-n.png', 'distimg/fond-nuit.png', 'distimg/decor-nuit.png'];
+SceneOneLower.preload = ['img/elem-voit2-n.png','img/elem-voit1-n.png','distimg/route-nuit-fs8.png', 'distimg/falling_meteorite.png', 'distimg/elem-poubelles-n.png', 'distimg/elem-arbre-n.png', 'distimg/elem-lampe-n.png', 'distimg/fond-nuit.png', 'distimg/decor-nuit.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('distimg/imm' + (i+1) + '-n-fs8.png'); }
 
 
