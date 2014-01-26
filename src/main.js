@@ -537,7 +537,7 @@ var Player = Class.create(enchant.Sprite, {
 
   onenterframe : function() {
     if (this.age - this.counter > game.fps * 30) {
-      window.location = '/img/scenes/dead.png';
+      window.location = 'img/scenes/dead.png';
     } else {
       // console.log(this.age-this.counter);
     }
@@ -748,7 +748,7 @@ Game.prototype.twist = function() {
 Game.prototype.loose = function() {
   this.game.pause();
   setTimeout(function(){
-    window.location = '/img/scenes/Game-over.png';
+    window.location = 'img/scenes/Game-over.png';
   }, 3000);
 };
 
