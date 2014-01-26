@@ -9,7 +9,11 @@
   </head>
   <body>
     <script type="text/javascript" src="enchant.js/enchant.min.js"></script>
-    <script type="text/javascript"> if (! enchant) { document.write('<scri' + 'pt type="text/javascript" src="http://enchantjs.com/live-sample/enchant.js"></scr' + 'ipt>'); } </script>
+    <script type="text/javascript">
+      if (typeof enchant == 'undefined') {
+        document.write('<scri' + 'pt type="text/javascript" src="http://enchantjs.com/live-sample/enchant.js"></scr' + 'ipt>');
+      }
+    </script>
     <script type="text/javascript" src="src/main.js"></script>
   </body>
 </html>
