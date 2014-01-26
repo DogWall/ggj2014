@@ -209,7 +209,13 @@ var SceneOneUpper = Class.create(enchant.Group, {
     var self = this;
     enchant.Group.call(this);
 
+    this.width = WIDTH;
+    this.height = HEIGHT;
+    this.originX = WIDTH / 2;
+    this.originY = HEIGHT / 2;
+
     this.bg = addDecor(game, this, 'jour');
+
     this.ground = addRoad(game, this, 'jour', -1);
 
     this.objects = [
@@ -282,6 +288,11 @@ for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('distimg/imm' + (i+1) +
 var SceneOneLower = Class.create(enchant.Group, {
   initialize: function (game) {
     enchant.Group.call(this);
+
+    this.width = WIDTH;
+    this.height = HEIGHT;
+    this.originX = WIDTH / 2;
+    this.originY = HEIGHT / 2;
 
     this.bg = addDecor(game, this, 'nuit');
     this.ground = addRoad(game, this, 'nuit', 1);
