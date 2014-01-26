@@ -2,10 +2,15 @@
 /* global enchant, Class, HEIGHT, WIDTH, SPEED, TRANSITION */
 
 //init enchant.js
-HEIGHT = window.innerHeight;
-WIDTH = window.innerWidth;
+HEIGHT = window.innerHeight * 2;
+WIDTH = window.innerWidth * 2;
 SPEED = 800;
 TRANSITION = 10;
+
+var FALLING_OBJECTS = [
+  'distimg/falling_alien.png', 'distimg/falling_baleine.png', 'distimg/falling_godzilla.png',
+  'distimg/falling_meteorite.png', 'distimg/falling_petunias.png', 'distimg/falling_piano.png',
+  'distimg/falling_poubellesfire.png', 'distimg/falling_teckel.png' ];
 
 // enchant.ENV.USE_ANIMATION  = false;
 enchant.ENV.TOUCH_ENABLED  = false;
@@ -60,7 +65,7 @@ function addRoad (game, scene, modifier, direction) {
     .loop();
 
   ground.touchEnabled = false;
-    ground.disableCollection();
+  ground.disableCollection();
   scene.addChild(ground);
   return ground;
 }
@@ -265,11 +270,12 @@ var SceneOneUpper = Class.create(enchant.Group, {
       addCar(game,this,this.ground,game.assets['img/elem-voit1-j.png'],-1,7);
 
     // METEORS
-    var asset = game.assets['distimg/falling_meteorite.png'];
     var meteorsPool = new Pool();
-    for (var i = 0; i < 5; i++) {
+    for (var i = 0; i < FALLING_OBJECTS.length; i++) {
+      var asset = game.assets[FALLING_OBJECTS[i]];
       var meteor = new enchant.Sprite(asset.width, asset.height);
       meteor.image = asset;
+      meteor.frames = [0,1,2];
       meteor.touchEnabled = false;
       meteorsPool.add(meteor);
     }
@@ -277,7 +283,6 @@ var SceneOneUpper = Class.create(enchant.Group, {
       .delay(30)
       .then(function() {
         var meteor = meteorsPool.get();
-        meteor._image = asset;
         meteor.x = WIDTH/2 - (0.5-Math.random())*WIDTH/1.5;
         meteor.y = - HEIGHT;
         meteor.age = 0;
@@ -345,7 +350,7 @@ var SceneOneLower = Class.create(enchant.Group, {
 
   }
 });
-SceneOneLower.preload = ['distimg/route-nuit-fs8.png', 'distimg/falling_meteorite.png', 'distimg/elem-poubelles-n.png', 'distimg/elem-arbre-n.png', 'distimg/elem-lampe-n.png', 'distimg/fond-nuit.png', 'distimg/decor-nuit.png'];
+SceneOneLower.preload = ['distimg/route-nuit-fs8.png', 'distimg/elem-poubelles-n.png', 'distimg/elem-arbre-n.png', 'distimg/elem-lampe-n.png', 'distimg/fond-nuit.png', 'distimg/decor-nuit.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('distimg/imm' + (i+1) + '-n-fs8.png'); }
 
 
@@ -424,7 +429,7 @@ var Game = function () {
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
   game.fps=24;
 
-  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3' ];
+  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3' ].concat(FALLING_OBJECTS);
 
   for (var i = 0; i < settings.levels.length; i++) {
     var j;
@@ -455,8 +460,8 @@ var Game = function () {
     self.backSprite.backgroundColor = 'lightblue';
     self.backgroundScene.addChild(self.backSprite);
     // game.rootScene.addChild(self.backgroundScene);
-    game.upperScene = new Scene();
-    game.lowerScene = new Scene();
+    game.upperScene = new enchant.Scene();
+    game.lowerScene = new enchant.Scene();
     game.player = new Player();
     game.playerScene = new enchant.Group();
     game.playerScene.addChild(game.player);
