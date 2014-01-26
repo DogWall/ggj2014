@@ -369,7 +369,7 @@ var SceneOneLower = Class.create(enchant.Group, {
     
     this.objects = [
       [], // bin for new objects
-      addBuildings(game, this, this.ground, 'n'),
+      addBuildings(game, this, this.ground, 'n')
       //[this.addChild(game.player)],
       //[this.addChild(FGMarker)],
       //addCommon(game, this, this.ground, 3, 'elem-arbre', 'n'),
@@ -433,7 +433,8 @@ var settings = {
       lowerScene: SceneOneLower,
       playerScene: enchant.Group,
       lowerScenefg: SceneOneLoweFG,
-      upperScenefg: SceneOneUpperFG
+      upperScenefg: SceneOneUpperFG,
+       Boss: enchant.Sprite
     }
   ]
 };
@@ -494,7 +495,7 @@ var Game = function () {
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
   game.fps = 30;
 
-  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3' ]
+  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3','distimg/fantome.png' ]
     .concat(FALLING_OBJECTS)
     .concat(CARS_DAY)
     .concat(CARS_NIGHT);
@@ -577,6 +578,8 @@ Game.prototype.loadLevel = function(levelIndex) {
 
   this.upperScene = new settings.levels[levelIndex].upperScene(game);
   this.upperScenefg = new settings.levels[levelIndex].upperScenefg(game);
+  this.Boss = new Sprite(game.assets['distimg/fantome.png'].width,game.assets['distimg/fantome.png'].height)
+   this.Boss.image= game.assets['distimg/fantome.png'];
   game.rootScene.addChild(this.upperScene);
 
   this.playerScene = new settings.levels[levelIndex].playerScene();
@@ -593,6 +596,7 @@ Game.prototype.loadLevel = function(levelIndex) {
   game.rootScene.addChild(this.playerScene);
   game.rootScene.addChild(this.upperScenefg);
     game.rootScene.addChild(this.lowerScenefg);
+    this.lowerScenefg.addChild(this.Boss);
   this.upperScenefg.y = HEIGHT / 2;
   this.playerScene.y = HEIGHT / 2;
   this.upperScene.y = HEIGHT / 2;
@@ -602,50 +606,49 @@ Game.prototype.loadLevel = function(levelIndex) {
 
 Game.prototype.twist = function() {
 
-  var self = this;
+    var self = this;
 
-  if (! game.twisting){
+    if (! game.twisting){
 
 
-    game.twisting = true;
+        game.twisting = true;
 
-    game.twisted = !game.twisted;
-    game.player.twist();
-      if(game.twisted){
-    self.sndTransition.play();
-    self.sndJour.volume = 0.5;
+        game.twisted = !game.twisted;
+        game.player.twist();
+        if(game.twisted){
+            self.sndTransition.play();
+            self.sndJour.volume = 0.5;
+            self.Boss.tl.clear();
+            self.Boss.x=WIDTH-self.Boss.width;//self.player.x;
+            self.Boss.y=self.player.y;
+            self.Boss.tl.moveTo(WIDTH/2,self.Boss.y,100+Math.random()*100);
+            //self.lowerScenefg.addChild(self.Boss);
+            self.upperScene.tl.rotateBy(-180, TRANSITION);self.upperScenefg.tl.rotateBy(-180, TRANSITION);
+            self.lowerScene.tl.rotateBy(-180, TRANSITION);self.lowerScenefg.tl.rotateBy(-180, TRANSITION)
+                .then(function(){
+                    game.twisting = false;
+                    self.sndJour.volume = 0;
+                    self.sndNuit.volume = 1;
+                    self.sndTransition.stop();
 
-    self.upperScene.tl.rotateBy(-180, TRANSITION);self.upperScenefg.tl.rotateBy(-180, TRANSITION);
-    self.lowerScene.tl.rotateBy(-180, TRANSITION);self.lowerScenefg.tl.rotateBy(-180, TRANSITION)
-      .then(function(){
-        game.twisting = false;
-        self.sndJour.volume = 0;
-        self.sndNuit.volume = 1;
-        self.sndTransition.stop();
+                });
 
-      });
+        } else {
+            self.Boss.tl.clear();
+            self.sndTransition.play();
+            self.sndNuit.volume = 0.5;
+            self.upperScenefg.tl.rotateBy(180, TRANSITION);
+            self.lowerScene.tl.rotateBy(180, TRANSITION);self.lowerScenefg.tl.rotateBy(180, TRANSITION);
+            self.upperScene.tl.rotateBy(180, TRANSITION).then(function(){
+                game.twisting = false;
+                self.sndNuit.volume = 0;
+                self.sndJour.volume = 1;
 
-  } else {
+            });
 
-    self.sndTransition.play();
-    self.sndNuit.volume = 0.5;
-          self.upperScenefg.tl.rotateBy(180, TRANSITION);
-    self.upperScene.tl.rotateBy(180, TRANSITION).then(function(){
-      game.twisting = false;
-      self.sndNuit.volume = 0;
-      self.sndJour.volume = 1;
-      self.sndTransition.stop();
 
-      // this.insertBefore(game.player, FGMarker);
-      // this.addChild(game.player);
-      // game.player.tl.fadeIn(10);
-      // self.sndNuit.volume=1;
-    });
-    self.lowerScene.tl.rotateBy(180, TRANSITION);self.lowerScenefg.tl.rotateBy(180, TRANSITION);
-
-    // this.rootScene.tl.rotateBy(180, 15);
-  }
-  }
+        }
+    }
 };
 
 
