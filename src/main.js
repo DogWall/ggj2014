@@ -442,6 +442,20 @@ var Game = function () {
     self.twist();
   });
 
+  function changevisibility() {
+    if (document.hidden === false || document.webkitHidden === false) {
+      game.resume();
+      self.sndNuit.play();
+      self.sndJour.play();
+    } else {
+      self.game.pause();
+      self.sndNuit.pause();
+      self.sndJour.pause();
+    }
+  }
+  document.addEventListener('visibilitychange', changevisibility, false);
+  document.addEventListener('webkitvisibilitychange', changevisibility, false);
+
   game.start();
 };
 
