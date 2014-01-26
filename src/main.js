@@ -229,7 +229,7 @@ var SceneOneUpper = Class.create(enchant.Group, {
       [], // bin for new objects
       addBuildings(game, this, this.ground, 'j'),
       // [this.addChild(game.player)],
-      [this.addChild(FGMarker)],
+     // [this.addChild(FGMarker)],
       addCommon(game, this, this.ground, 3, 'elem-arbre', 'j'),
       addCommon(game, this, this.ground, 2, 'elem-lampe', 'j'),
       addTrashes(game, this, this.ground, 'j')
@@ -287,7 +287,7 @@ var SceneOneUpper = Class.create(enchant.Group, {
       .loop();
   }
 });
-SceneOneUpper.preload = ['sounds/Jour_0_1.wav','sounds/Nuit_0_1.wav','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
+SceneOneUpper.preload = ['sounds/Jour_1_0.wav','sounds/Nuit_1_0.wav','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('distimg/imm' + (i+1) + '-j-fs8.png'); }
 
 
@@ -308,7 +308,7 @@ var SceneOneLower = Class.create(enchant.Group, {
       [], // bin for new objects
       addBuildings(game, this, this.ground, 'n'),
       //[this.addChild(game.player)],
-      [this.addChild(FGMarker)],
+      //[this.addChild(FGMarker)],
       addCommon(game, game.lowerScenefg, this.ground, 3, 'elem-arbre', 'n'),
       addCommon(game, game.lowerScenefg, this.ground, 2, 'elem-lampe', 'n'),
       addTrashes(game, this, this.ground, 'n')
@@ -418,7 +418,7 @@ var Game = function () {
     self.sndNuit.play();
     self.sndNuit.volume = 0;
 
-    FGMarker = new enchant.Marker();
+    //FGMarker = new enchant.Marker();
 
     self.backgroundScene = new enchant.Group();
     self.backSprite = new enchant.Sprite(WIDTH, HEIGHT);
@@ -469,19 +469,17 @@ Game.prototype.twist = function() {
 
   var self = this;
 
-  if (! game.twisting) {
+  if (! game.twisting){
+
 
     game.twisting = true;
 
     game.twisted = !game.twisted;
     game.player.twist();
-
+      if(game.twisted){
     self.sndTransition.play();
     self.sndJour.volume = 0.5;
 
-    // self.upperScenefg.tl.rotateBy(-180, 10)
-    // self.upperScene.removeChild(self.player);
-    // self.playerScene.addChild(self.player);
     self.upperScene.tl.rotateBy(-180, TRANSITION);
     self.lowerScene.tl.rotateBy(-180, TRANSITION)
       .then(function(){
@@ -490,29 +488,13 @@ Game.prototype.twist = function() {
         self.sndNuit.volume = 1;
         self.sndTransition.stop();
 
-        // this.insertBefore(game.player,FGMarker);
-        // this.addChild(game.player);
-        // self.sndNuit.volume=1;
       });
-      // self.lowerScenefg.tl.rotateBy(-180, 10);
-
-      this.upperScene.tl
-        .rotateBy(-180, 10)
-        .then(function(){
-          game.twisting = false;
-          //self.sndNuit.volume=1;
-        });
-
-      this.lowerScene.tl.rotateBy(-180, 10);
 
   } else {
 
     self.sndTransition.play();
     self.sndNuit.volume = 0.5;
 
-    // self.sndNuit.tl.tween({volume:0,time:10});
-    // self.upperScenefg.tl.rotateBy(180, 10);
-    // self.lowerScenefg.tl.rotateBy(180, 10);
     self.upperScene.tl.rotateBy(180, TRANSITION).then(function(){
       game.twisting = false;
       self.sndNuit.volume = 0;
@@ -527,6 +509,7 @@ Game.prototype.twist = function() {
     self.lowerScene.tl.rotateBy(180, TRANSITION);
 
     // this.rootScene.tl.rotateBy(180, 15);
+  }
   }
 };
 
