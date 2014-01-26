@@ -392,66 +392,7 @@ var SceneOneUpper = Class.create(enchant.Group, {
       //  addCommon(game, this, this.ground, 2, 'elem-lampe', 'j'),
       // addTrashes(game, this, this.ground, 'j')
     ];
-      /*
-      addCar(game,this,this.ground,game.assets['img/elem-voit2-j.png'],1,0);
-      addCar(game,this,this.ground,game.assets['img/elem-voit2-j.png'],1,30);
-      addCar(game,this,this.ground,game.assets['img/elem-voit1-j.png'],-1,15);
-      addCar(game,this,this.ground,game.assets['img/elem-voit1-j.png'],-1,7);*/
-/*
-    // METEORS
-    var meteorsPool = new Pool();
 
-    for (var i = 0; i < FALLING_OBJECTS.length; i++) {
-      var asset = game.assets[FALLING_OBJECTS[i]];
-      var meteor = new enchant.Sprite(asset.width, asset.height);
-      meteor.image = asset;
-      meteor.frames = [0,1,2];
-      meteor.touchEnabled = false;
-      meteor.reset = function (){
-        this.remove();
-        meteorsPool.add(this);
-      };
-      meteor.reset();
-    }
-    
-    game.rootScene.tl
-      .delay(30)
-      .then(function() {
-        var meteor = meteorsPool.get();
-        meteor.x = WIDTH/2 - (0.5-Math.random())*WIDTH/1.5;
-        meteor.y = - HEIGHT;
-        meteor.age = 0;
-        meteor._intersected = false;
-        self.addChild(meteor);
-        meteor.tl
-          .clear()
-          .moveTo(game.player.x+(0.5-Math.random())*game.player.width*10, game.player.y+100, 60, enchant.Easing.EXPO_EASEIN)
-          .moveBy(-1 * SPEED * 20, 0, 200)
-          .then(function(){
-            meteor.reset();
-          });
-
-        meteor.onenterframe = function(){
-          // too old
-          if (this.age > 100) {
-            meteor.reset();
-
-          // too low
-          } else if (this.y + this.height > game.player.y + game.player.height) {
-            this._intersected = true;
-
-          // test intersections
-          } else if (! game.twisting && ! this._intersected) {
-            if (this.intersect(game.player)) {
-              console.log('Yo, you are dead bitch !');
-              this._intersected = true;
-              meteor.reset();
-            }
-          }
-        };
-
-      })
-      .loop();*/
   }
 });
 SceneOneUpper.preload = ['sounds/Jour.mp3','sounds/Nuit.mp3','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
@@ -476,16 +417,43 @@ var SceneOneLower = Class.create(enchant.Group, {
       addBuildings(game, this, this.ground, 'n'),
       //[this.addChild(game.player)],
       //[this.addChild(FGMarker)],
-      addCommon(game, this, this.ground, 3, 'elem-arbre', 'n'),
-      addCommon(game, this, this.ground, 2, 'elem-lampe', 'n'),
-      addTrashes(game, this, this.ground, 'n')
+      //addCommon(game, this, this.ground, 3, 'elem-arbre', 'n'),
+     // addCommon(game, this, this.ground, 2, 'elem-lampe', 'n'),
+      //addTrashes(game, this, this.ground, 'n')
     ];
 
     addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,0);
     addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,30);
     addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,15);
     addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,7);
+  }
+});
 
+var SceneOneLoweFG = Class.create(enchant.Group, {
+  initialize: function (game) {
+    enchant.Group.call(this);
+
+    this.width = WIDTH;
+    this.height = HEIGHT;
+    this.originX = WIDTH / 2;
+    this.originY = HEIGHT / 2;
+
+   // this.bg = addDecor(game, this, 'nuit');
+   this.ground = addRoad(game, this, 'nuit', 1);
+    this.removeChild(this.ground);
+    this.objects = [
+        [], // bin for new objects
+       // addBuildings(game, this, this.ground, 'n'),
+        //[this.addChild(game.player)],
+        //[this.addChild(FGMarker)],
+        addCommon(game, this, this.ground, 3, 'elem-arbre', 'n'),
+        addCommon(game, this, this.ground, 2, 'elem-lampe', 'n'),
+        addTrashes(game, this, this.ground, 'n')
+    ];
+    addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,0);
+    addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,30);
+    addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,15);
+    addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,7);
   }
 });
 SceneOneLower.preload = ['distimg/route-nuit-fs8.png', 'distimg/elem-poubelles-n.png', 'distimg/elem-arbre-n.png', 'distimg/elem-lampe-n.png', 'distimg/fond-nuit.png', 'distimg/decor-nuit.png'];
@@ -508,6 +476,7 @@ var settings = {
       upperScene: SceneOneUpper,
       lowerScene: SceneOneLower,
       playerScene: enchant.Group,
+      lowerScenefg: SceneOneLoweFG,
       upperScenefg: SceneOneUpperFG
     }
   ]
@@ -598,14 +567,14 @@ var Game = function () {
 
     //FGMarker = new enchant.Marker();
 
-    self.backgroundScene = new enchant.Group();
-    self.backSprite = new enchant.Sprite(WIDTH, HEIGHT);
-    self.backSprite.backgroundColor = 'lightblue';
-    self.backgroundScene.addChild(self.backSprite);
+    // self.backgroundScene = new enchant.Group();
+    // self.backSprite = new enchant.Sprite(WIDTH, HEIGHT);
+    //self.backSprite.backgroundColor = 'lightblue';
+    //self.backgroundScene.addChild(self.backSprite);
     // game.rootScene.addChild(self.backgroundScene);
 
-    game.upperScene = new enchant.Scene();
-    game.lowerScene = new enchant.Scene();
+    //game.upperScene = new enchant.Scene();
+    //game.lowerScene = new enchant.Scene();
 
     game.player = new Player();
 
@@ -647,6 +616,7 @@ Game.prototype.loadLevel = function(levelIndex) {
     game.rootScene.removeChild(this.upperScene);
     game.rootScene.removeChild(this.upperScenefg);
     game.rootScene.removeChild(this.lowerScene);
+    game.rootScene.removeChild(this.lowerScenefg);
   }
 
   this.upperScene = new settings.levels[levelIndex].upperScene(game);
@@ -659,60 +629,26 @@ Game.prototype.loadLevel = function(levelIndex) {
   this.playerScene.addChild(this.player);
 
   this.lowerScene = new settings.levels[levelIndex].lowerScene(game);
+  this.lowerScenefg = new settings.levels[levelIndex].lowerScenefg(game);
   this.lowerScene.rotation = -180;
-  game.lowerScenefg =- 180;
+  this.lowerScenefg.rotation =- 180;
   game.rootScene.addChild(this.lowerScene);
 
   game.rootScene.addChild(this.playerScene);
   game.rootScene.addChild(this.upperScenefg);
+  game.rootScene.addChild(this.lowerScenefg);
   this.upperScenefg.y = HEIGHT / 2;
   this.playerScene.y = HEIGHT / 2;
   this.upperScene.y = HEIGHT / 2;
   this.lowerScene.y = HEIGHT / 2;
+  this.lowerScenefg.y = HEIGHT / 2;
 
   game.infos = new SceneInfos(game);
   game.rootScene.addChild(game.infos);
-
 };
 
 Game.prototype.twist = function() {
 
-  var self = this;
-
-  if (! game.twisting){
-
-    game.twisting = true;
-
-    game.twisted = !game.twisted;
-    game.player.twist();
-
-    if (game.twisted){
-      self.sndTransition.play();
-      self.sndJour.volume = 0.5;
-
-      self.upperScene.tl.rotateBy(-180, TRANSITION);self.upperScenefg.tl.rotateBy(-180, TRANSITION);
-      self.lowerScene.tl.rotateBy(-180, TRANSITION)
-        .then(function(){
-          game.twisting = false;
-          self.sndJour.volume = 0;
-          self.sndNuit.volume = 1;
-          self.sndTransition.stop();
-        });
-
-    } else {
-
-      self.sndTransition.play();
-      self.sndNuit.volume = 0.5;
-      self.upperScenefg.tl.rotateBy(180, TRANSITION);
-      self.upperScene.tl.rotateBy(180, TRANSITION).then(function(){
-        game.twisting = false;
-        self.sndNuit.volume = 0;
-        self.sndJour.volume = 1;
-        self.sndTransition.stop();
-      });
-      self.lowerScene.tl.rotateBy(180, TRANSITION);
-    }
-  }
 };
 
 Game.prototype.loose = function() {
