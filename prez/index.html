@@ -249,8 +249,10 @@
         CSS transfrom docs: https://developer.mozilla.org/en/CSS/transform
         
     -->
-    <div id="game" class="step" data-x="5000" data-y="1500" data-scale="10">
-        
+    <div id="game" class="step" data-x="5000" data-y="1500" data-scale="10" style="width:1200px;">
+        <h1><a href="http://goo.gl/E4FxoF">http://goo.gl/E4FxoF</a></h1>
+        <img style="float:right;" src="qrcode.png"/>
+        <div/>
     </div>
 
 </div>
@@ -269,7 +271,8 @@ if ("ontouchstart" in document.documentElement) {
 <script type="text/javascript">
     document.addEventListener('slide', function(event){
         if (event.detail.el.id == 'game') {
-            event.detail.el.innerHTML = '<iframe src="../index.html" width="640" height="480"></iframe>';
+            debugger;
+            event.detail.el.children[2].innerHTML = '<iframe src="../index.html" width="640" height="480"></iframe>';
         }
     });
 </script>
