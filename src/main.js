@@ -287,7 +287,7 @@ var SceneOneUpper = Class.create(enchant.Group, {
       .loop();
   }
 });
-SceneOneUpper.preload = ['sounds/Jour_1_0.wav','sounds/Nuit_1_0.wav','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
+SceneOneUpper.preload = ['sounds/Jour.mp3','sounds/Nuit.mp3','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('distimg/imm' + (i+1) + '-j-fs8.png'); }
 
 
@@ -393,8 +393,9 @@ var Game = function () {
   var self = this;
 
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
+  game.fps=24;
 
-  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition_2.wav' ];
+  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3' ];
 
   for (var i = 0; i < settings.levels.length; i++) {
     var j;
@@ -410,11 +411,11 @@ var Game = function () {
 
   game.onload = function () {
 
-    self.sndTransition = game.assets['sounds/Transition_2.wav'].clone();
-    self.sndJour = game.assets['sounds/Jour_1_0.wav'].clone();
+    self.sndTransition = game.assets['sounds/Transition.mp3'].clone();
+    self.sndJour = game.assets['sounds/Jour.mp3'].clone();
     self.sndJour.play();
 
-    self.sndNuit = game.assets['sounds/Nuit_1_0.wav'].clone();
+    self.sndNuit = game.assets['sounds/Nuit.mp3'].clone();
     self.sndNuit.play();
     self.sndNuit.volume = 0;
 
