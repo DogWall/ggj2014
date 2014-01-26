@@ -208,7 +208,32 @@ function addCommon (game, scene, ground, count, prefix, modifier) {
 }
 
 
+function addCar (game, scene, ground,asset, direction,speed) {
 
+
+    car = new enchant.Sprite(asset.width, asset.height);
+    car.image = asset;
+    if (direction ==-1)
+    {
+        car.x = WIDTH+asset.width*(1+speed);
+        car.y = HEIGHT/2 - asset.height;//ground.y + ground.width/2;
+        car.tl.moveBy(-WIDTH-car.width*50,0,150).moveTo(WIDTH+asset.width*(1+speed),car.y,0).loop();
+    }
+    else
+    {
+        car.x = -asset.width*(1+speed);
+        car.y = HEIGHT/2 - asset.height*1.5;//ground.y + ground.width/2;
+        car.tl.moveBy(WIDTH+car.width*50,0,150).moveTo(-asset.width*(1+speed) ,car.y,0).loop();
+    }
+    console.log(car)
+    car.touchEnabled = false;
+    car.onenterframe = function () {
+
+    }
+    scene.addChild(car);
+    car.disableCollection();
+
+}
 //////////////////  SCENES  /////////////////////
 
 var SceneOneUpper = Class.create(enchant.Group, {
@@ -234,6 +259,10 @@ var SceneOneUpper = Class.create(enchant.Group, {
       addCommon(game, this, this.ground, 2, 'elem-lampe', 'j'),
       addTrashes(game, this, this.ground, 'j')
     ];
+      addCar(game,this,this.ground,game.assets['img/elem-voit2-j.png'],1,0);
+      addCar(game,this,this.ground,game.assets['img/elem-voit2-j.png'],1,30);
+      addCar(game,this,this.ground,game.assets['img/elem-voit1-j.png'],-1,15);
+      addCar(game,this,this.ground,game.assets['img/elem-voit1-j.png'],-1,7);
 
     // METEORS
     var asset = game.assets['distimg/falling_meteorite.png'];
@@ -287,7 +316,7 @@ var SceneOneUpper = Class.create(enchant.Group, {
       .loop();
   }
 });
-SceneOneUpper.preload = ['sounds/Jour.mp3','sounds/Nuit.mp3','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
+SceneOneUpper.preload = ['img/elem-voit1-j.png','img/elem-voit2-j.png','sounds/Jour.mp3','sounds/Nuit.mp3','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('distimg/imm' + (i+1) + '-j-fs8.png'); }
 
 
