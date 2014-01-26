@@ -502,7 +502,7 @@ var Game = function () {
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
   game.fps = 30;
 
-  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3','distimg/fantome.png','distimg/office-j.png','distimg/office-n.png' ]
+  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3', 'distimg/fantome.png', 'distimg/coeurgris.png', 'distimg/coeurrouge.png','distimg/office-j.png','distimg/office-n.png'  ]
     .concat(FALLING_OBJECTS)
     .concat(CARS_DAY)
     .concat(CARS_NIGHT);
@@ -521,10 +521,7 @@ var Game = function () {
 
   game.onload = function () {
 
-
-
-
-      self.sndTransition = game.assets['sounds/Transition.mp3'].clone();
+    self.sndTransition = game.assets['sounds/Transition.mp3'].clone();
     self.sndJour = game.assets['sounds/Jour.mp3'].clone();
     self.sndJour.play();
 
@@ -553,6 +550,27 @@ var Game = function () {
     //game.rootScene.addChild(game.playerScene);
 
     //game.playerScene.y = HEIGHT / 2;
+  };
+
+  game.fireTwistEvent = function () {
+    var event; // The custom event that will be created
+
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent('touchstart', true, true);
+    } else {
+      event = document.createEventObject();
+      event.eventType = 'touchstart';
+    }
+
+    event.eventName = 'touchstart';
+
+    if (document.createEvent) {
+      document.dispatchEvent(event);
+    } else {
+      document.fireEvent('on' + event.eventType, event);
+    }
+
   };
 
   game.rootScene.addEventListener('touchstart', function() {
@@ -585,7 +603,7 @@ Game.prototype.loadLevel = function(levelIndex) {
     game.rootScene.removeChild(this.lowerScene);
       game.rootScene.removeChild(this.lowerScenefg);
   }
-    this.HQ = new settings.levels[levelIndex].HQ;
+
   this.upperScene = new settings.levels[levelIndex].upperScene(game);
   this.upperScenefg = new settings.levels[levelIndex].upperScenefg(game);
   this.Boss = new Sprite(game.assets['distimg/fantome.png'].width,game.assets['distimg/fantome.png'].height)
@@ -618,7 +636,10 @@ Game.prototype.loadLevel = function(levelIndex) {
   this.playerScene.y = HEIGHT / 2;
   this.upperScene.y = HEIGHT / 2;
   this.lowerScene.y = HEIGHT / 2;
-    this.lowerScenefg.y = HEIGHT / 2;
+  this.lowerScenefg.y = HEIGHT / 2;
+
+  game.infos = new SceneInfos(game);
+  game.rootScene.addChild(game.infos);
 };
 
 Game.prototype.twist = function() {
