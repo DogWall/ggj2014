@@ -434,7 +434,8 @@ var settings = {
       playerScene: enchant.Group,
       lowerScenefg: SceneOneLoweFG,
       upperScenefg: SceneOneUpperFG,
-       Boss: enchant.Sprite
+       Boss: enchant.Sprite,
+       HQ: enchant.Sprite
     }
   ]
 };
@@ -454,7 +455,7 @@ var Player = Class.create(enchant.Sprite, {
 
     enchant.Sprite.call(this, this.image_j.width/5, this.image_j.height);
     this.image = this.image_j;
-
+      this.counter=this.age;
     this.x = WIDTH / 2;
     this.y = HEIGHT / 2 - this.height - 150;
     this.frames = [0,1,2,3,4,3,2,1];
@@ -480,7 +481,13 @@ var Player = Class.create(enchant.Sprite, {
         }
       })
       .fadeIn(TRANSITION / 2);
-  }
+  },
+
+  onenterframe : function() {
+        if (this.age-this.counter>game.fps*30)
+            console.log("You win!");
+        else console.log(this.age-this.counter);
+    }
 });
 
 
@@ -495,7 +502,7 @@ var Game = function () {
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
   game.fps = 30;
 
-  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3','distimg/fantome.png' ]
+  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3','distimg/fantome.png','distimg/office-j.png','distimg/office-n.png' ]
     .concat(FALLING_OBJECTS)
     .concat(CARS_DAY)
     .concat(CARS_NIGHT);
@@ -514,7 +521,10 @@ var Game = function () {
 
   game.onload = function () {
 
-    self.sndTransition = game.assets['sounds/Transition.mp3'].clone();
+
+
+
+      self.sndTransition = game.assets['sounds/Transition.mp3'].clone();
     self.sndJour = game.assets['sounds/Jour.mp3'].clone();
     self.sndJour.play();
 
@@ -575,7 +585,7 @@ Game.prototype.loadLevel = function(levelIndex) {
     game.rootScene.removeChild(this.lowerScene);
       game.rootScene.removeChild(this.lowerScenefg);
   }
-
+    this.HQ = new settings.levels[levelIndex].HQ;
   this.upperScene = new settings.levels[levelIndex].upperScene(game);
   this.upperScenefg = new settings.levels[levelIndex].upperScenefg(game);
   this.Boss = new Sprite(game.assets['distimg/fantome.png'].width,game.assets['distimg/fantome.png'].height)
@@ -596,6 +606,13 @@ Game.prototype.loadLevel = function(levelIndex) {
   game.rootScene.addChild(this.playerScene);
   game.rootScene.addChild(this.upperScenefg);
     game.rootScene.addChild(this.lowerScenefg);
+    hqn = new Sprite(game.assets['distimg/office-n.png'].width,game.assets['distimg/office-n.png'].height);
+    hqn.image=game.assets['distimg/office-n.png'];
+    hqn.x=WIDTH/2;
+    hqn.y=HEIGHT/2-hqn.height-166;
+    this.lowerScene.addChild(hqn);
+    hqn.tl.moveBy(SPEED*10,0,1000);
+
     this.lowerScenefg.addChild(this.Boss);
   this.upperScenefg.y = HEIGHT / 2;
   this.playerScene.y = HEIGHT / 2;
