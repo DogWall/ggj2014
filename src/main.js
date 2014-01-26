@@ -1,16 +1,19 @@
 
-/* global enchant, Class, HEIGHT, WIDTH, SPEED */
+/* global enchant, Class, HEIGHT, WIDTH, SPEED, TRANSITION */
 
 //init enchant.js
 HEIGHT = window.innerHeight;
 WIDTH = window.innerWidth;
-SPEED = 500;
+SPEED = 800;
+TRANSITION = 10;
 
 // enchant.ENV.USE_ANIMATION  = false;
 enchant.ENV.TOUCH_ENABLED  = false;
 enchant.ENV.RETINA_DISPLAY = false;
 
 enchant();
+
+var Marker = Class.create(enchant.Node, { });
 
 ////////////////////////////
 
@@ -57,6 +60,7 @@ function addRoad (game, scene, modifier, direction) {
     .loop();
 
   ground.touchEnabled = false;
+    ground.disableCollection();
   scene.addChild(ground);
   return ground;
 }
@@ -71,6 +75,7 @@ function addDecor (game, scene, modifier) {
   bg.x = 0 ;
   bg.y = HEIGHT / 2 - bg.height;
   bg.touchEnabled = false;
+  bg.disableCollection();
   scene.addChild(bg);
 
   asset = game.assets['distimg/decor-' + modifier + '.png'];
@@ -137,6 +142,7 @@ function addTrashes (game, scene, ground, modifier) {
     objects[i].x = objects[i].width / 2+xoffset;
     objects[i].y = HEIGHT / 2 - ground.height - (Math.random() * objects[i].height * 0.8);
     objects[i].touchEnabled = false;
+    objects[i].disableCollection();
 
     if (modifier == 'n') {
       objects[i].onenterframe = regularFrameMove;
@@ -177,6 +183,7 @@ function addCommon (game, scene, ground, count, prefix, modifier) {
     objects[i].y = HEIGHT / 2 - ground.height - objects[i].height * 0.9;
     objects[i].touchEnabled = false;
     objects[i].bycount = count;
+    objects[i].disableCollection();
 
     if (modifier == 'n') {
       objects[i].onenterframe = regularFrameMove;
@@ -221,6 +228,8 @@ var SceneOneUpper = Class.create(enchant.Group, {
     this.objects = [
       [], // bin for new objects
       addBuildings(game, this, this.ground, 'j'),
+      // [this.addChild(game.player)],
+      [this.addChild(FGMarker)],
       addCommon(game, this, this.ground, 3, 'elem-arbre', 'j'),
       addCommon(game, this, this.ground, 2, 'elem-lampe', 'j'),
       addTrashes(game, this, this.ground, 'j')
@@ -258,9 +267,9 @@ var SceneOneUpper = Class.create(enchant.Group, {
             meteorsPool.add(meteor);
           });
 
-        /*
         meteor.onenterframe = function(){
           if (this.age > 100) {
+
             self.removeChild(this);
             meteorsPool.add(meteor);
 
@@ -273,11 +282,9 @@ var SceneOneUpper = Class.create(enchant.Group, {
             }
           }
         };
-        */
 
       })
       .loop();
-
   }
 });
 SceneOneUpper.preload = ['sounds/Jour_0_1.wav','sounds/Nuit_0_1.wav','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
@@ -300,8 +307,10 @@ var SceneOneLower = Class.create(enchant.Group, {
     this.objects = [
       [], // bin for new objects
       addBuildings(game, this, this.ground, 'n'),
-      addCommon(game, this, this.ground, 3, 'elem-arbre', 'n'),
-      addCommon(game, this, this.ground, 2, 'elem-lampe', 'n'),
+      //[this.addChild(game.player)],
+      [this.addChild(FGMarker)],
+      addCommon(game, game.lowerScenefg, this.ground, 3, 'elem-arbre', 'n'),
+      addCommon(game, game.lowerScenefg, this.ground, 2, 'elem-lampe', 'n'),
       addTrashes(game, this, this.ground, 'n')
     ];
 
@@ -358,19 +367,19 @@ var Player = Class.create(enchant.Sprite, {
       .then(function(){ 
         this.inSceneSince = new Date();
       })
-      .fadeOut(10)
+      .fadeOut(TRANSITION / 2)
       .then(function(){
-          this.image = (game.twisted ? this.image_n : this.image_j);
+        if (game.twisted) {
+          //game.upperScene.removeChild(this);
+          this.image = this.image_n;
+          //game.lowerScene.addChild(this);
+        } else {
+          // game.lowerScene.removeChild(this);
+          this.image =  this.image_j;
+          //game.upperScene.addChild(this);
+        }
       })
-      .fadeIn(10);
-  },
-  onenterframe: function() {
-
-    //06.2 Intersect
-
-    //06.3 Within
-
-    //this.frame = this.walking ? this.frames : 1;
+      .fadeIn(TRANSITION / 2);
   }
 });
 
@@ -385,7 +394,7 @@ var Game = function () {
 
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
 
-  var preload = [ settings.player.sprite_j, settings.player.sprite_n ];
+  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition_2.wav' ];
 
   for (var i = 0; i < settings.levels.length; i++) {
     var j;
@@ -401,25 +410,31 @@ var Game = function () {
 
   game.onload = function () {
 
-    self.sndJour = game.assets['sounds/Jour_0_1.wav'].clone();
+    self.sndTransition = game.assets['sounds/Transition_2.wav'].clone();
+    self.sndJour = game.assets['sounds/Jour_1_0.wav'].clone();
     self.sndJour.play();
 
-    self.sndNuit = game.assets['sounds/Nuit_0_1.wav'].clone();
+    self.sndNuit = game.assets['sounds/Nuit_1_0.wav'].clone();
     self.sndNuit.play();
     self.sndNuit.volume = 0;
+
+    FGMarker = new enchant.Marker();
 
     self.backgroundScene = new enchant.Group();
     self.backSprite = new enchant.Sprite(WIDTH, HEIGHT);
     self.backSprite.backgroundColor = 'lightblue';
     self.backgroundScene.addChild(self.backSprite);
     // game.rootScene.addChild(self.backgroundScene);
-
+    game.upperScene = new Scene();
+    game.lowerScene = new Scene();
     game.player = new Player();
     game.playerScene = new enchant.Group();
     game.playerScene.addChild(game.player);
+    //game.upperScene.insertBefore(game.player,FGMarker);
 
     self.loadLevel(0);
     game.rootScene.addChild(game.playerScene);
+
     game.playerScene.y = HEIGHT / 2;
   };
 
@@ -439,13 +454,15 @@ Game.prototype.loadLevel = function(levelIndex) {
   }
 
   this.upperScene = new settings.levels[levelIndex].upperScene(game);
+
   game.rootScene.addChild(this.upperScene);
 
   this.lowerScene = new settings.levels[levelIndex].lowerScene(game);
   this.lowerScene.rotation = -180;
+  game.lowerScenefg =- 180;
   game.rootScene.addChild(this.lowerScene);
-  this.lowerScene.y = HEIGHT / 2;
   this.upperScene.y = HEIGHT / 2;
+  this.lowerScene.y = HEIGHT / 2;
 };
 
 Game.prototype.twist = function() {
@@ -459,33 +476,58 @@ Game.prototype.twist = function() {
     game.twisted = !game.twisted;
     game.player.twist();
 
-    if (game.twisted) {
+    self.sndTransition.play();
+    self.sndJour.volume = 0.5;
 
-      self.sndJour.volume = 0;
-      self.sndNuit.volume = 1;
+    // self.upperScenefg.tl.rotateBy(-180, 10)
+    // self.upperScene.removeChild(self.player);
+    // self.playerScene.addChild(self.player);
+    self.upperScene.tl.rotateBy(-180, TRANSITION);
+    self.lowerScene.tl.rotateBy(-180, TRANSITION)
+      .then(function(){
+        game.twisting = false;
+        self.sndJour.volume = 0;
+        self.sndNuit.volume = 1;
+        self.sndTransition.stop();
+
+        // this.insertBefore(game.player,FGMarker);
+        // this.addChild(game.player);
+        // self.sndNuit.volume=1;
+      });
+      // self.lowerScenefg.tl.rotateBy(-180, 10);
 
       this.upperScene.tl
         .rotateBy(-180, 10)
         .then(function(){
-          game.twisting = false;//self.sndNuit.volume=1;
+          game.twisting = false;
+          //self.sndNuit.volume=1;
         });
 
       this.lowerScene.tl.rotateBy(-180, 10);
 
+  } else {
 
-    } else {
+    self.sndTransition.play();
+    self.sndNuit.volume = 0.5;
 
+    // self.sndNuit.tl.tween({volume:0,time:10});
+    // self.upperScenefg.tl.rotateBy(180, 10);
+    // self.lowerScenefg.tl.rotateBy(180, 10);
+    self.upperScene.tl.rotateBy(180, TRANSITION).then(function(){
+      game.twisting = false;
       self.sndNuit.volume = 0;
       self.sndJour.volume = 1;
-      //self.sndNuit.tl.tween({volume:0,time:10});
-      this.upperScene.tl.rotateBy(180, 10);
-      this.lowerScene.tl.rotateBy(180, 10).then(function(){
-        game.twisting = false;
-        //self.sndJour.volume=1;
-      });
-    }
-  }
+      self.sndTransition.stop();
 
+      // this.insertBefore(game.player, FGMarker);
+      // this.addChild(game.player);
+      // game.player.tl.fadeIn(10);
+      // self.sndNuit.volume=1;
+    });
+    self.lowerScene.tl.rotateBy(180, TRANSITION);
+
+    // this.rootScene.tl.rotateBy(180, 15);
+  }
 };
 
 
