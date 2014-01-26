@@ -278,6 +278,10 @@ var SceneInfos = Class.create(enchant.Group, {
       }
       if (! lost) {
         this.game.loose();
+      } else {
+        setTimeout(function(){
+          window.ggj.twist();
+        }, 0);
       }
     }
 });
@@ -339,7 +343,7 @@ var SceneOneUpperFG = Class.create(enchant.Group, {
           meteor.tl
             .clear()
             .moveTo(game.player.x+(0.5-Math.random())*game.player.width*10, game.player.y+100, 60, enchant.Easing.EXPO_EASEIN)
-            .moveBy(-1 * SPEED * 20, 0, 200)
+            .moveBy(-1 * SPEED * 20, 0, 500)
             .then(function(){
               meteor.reset();
             });
@@ -589,6 +593,27 @@ var Game = function () {
     //game.playerScene.y = HEIGHT / 2;
   };
 
+  game.fireTwistEvent = function () {
+    var event; // The custom event that will be created
+
+    if (document.createEvent) {
+      event = document.createEvent('HTMLEvents');
+      event.initEvent('touchstart', true, true);
+    } else {
+      event = document.createEventObject();
+      event.eventType = 'touchstart';
+    }
+
+    event.eventName = 'touchstart';
+
+    if (document.createEvent) {
+      document.dispatchEvent(event);
+    } else {
+      document.fireEvent('on' + event.eventType, event);
+    }
+
+  };
+
   game.rootScene.addEventListener('touchstart', function() {
     self.twist();
   });
@@ -622,7 +647,7 @@ Game.prototype.loadLevel = function(levelIndex) {
 
   this.upperScene = new settings.levels[levelIndex].upperScene(game);
   this.upperScenefg = new settings.levels[levelIndex].upperScenefg(game);
-  this.Boss = new Sprite(game.assets['distimg/fantome.png'].width,game.assets['distimg/fantome.png'].height)
+  this.Boss = new Sprite(game.assets['distimg/fantome.png'].width,game.assets['distimg/fantome.png'].height);
   this.Boss.image= game.assets['distimg/fantome.png'];
   game.rootScene.addChild(this.upperScene);
 
@@ -663,14 +688,16 @@ Game.prototype.twist = function() {
     game.twisted = !game.twisted;
     game.player.twist();
 
-    if (game.twisted){
+    if (game.twisted) {
 
       self.sndTransition.play();
       self.sndJour.volume = 0.5;
       self.Boss.tl.clear();
       self.Boss.x=WIDTH-self.Boss.width;//self.player.x;
       self.Boss.y=self.player.y;
-      self.Boss.tl.moveTo(WIDTH/2,self.Boss.y,100+Math.random()*100);
+      self.Boss.tl.moveTo(WIDTH/2,self.Boss.y,100+Math.random()*100).then(function(){
+        game.infos.lostALife();
+      });
       //self.lowerScenefg.addChild(self.Boss);
       self.upperScene.tl.rotateBy(-180, TRANSITION);self.upperScenefg.tl.rotateBy(-180, TRANSITION);
       self.lowerScene.tl.rotateBy(-180, TRANSITION);self.lowerScenefg.tl.rotateBy(-180, TRANSITION)
@@ -679,7 +706,6 @@ Game.prototype.twist = function() {
               self.sndJour.volume = 0;
               self.sndNuit.volume = 1;
               self.sndTransition.stop();
-
           });
 
     } else {
