@@ -12,6 +12,9 @@ var FALLING_OBJECTS = [
   'distimg/falling_meteorite.png', 'distimg/falling_petunias.png', 'distimg/falling_piano.png',
   'distimg/falling_poubellesfire.png', 'distimg/falling_teckel.png' ];
 
+var CARS_DAY = [ 'img/elem-voit2-j.png','img/elem-voit1-j.png' ];
+var CARS_NIGHT = [ 'img/elem-voit2-n.png','img/elem-voit1-n.png' ];
+
 // enchant.ENV.USE_ANIMATION  = false;
 enchant.ENV.TOUCH_ENABLED  = false;
 enchant.ENV.RETINA_DISPLAY = false;
@@ -170,18 +173,16 @@ function addTrashes (game, scene, ground, modifier) {
 
 // COMMONS
 function addCommon (game, scene, ground, count, prefix, modifier) {
-  var objects = [],
-      xoffset = 0,
-      i = 0;
-
-  if (modifier == 'n') { xoffset = WIDTH; limit = 0; }
-  else { xoffset = 0; limit = WIDTH; }
+    var objects = [],
+        xoffset = 0,
+        direction = (modifier == 'n' ? 1 : -1),
+        i = 0;
 
   var direction = (modifier == 'n') ? 1 : -1;
 
   var asset = game.assets['distimg/' + prefix + '-' + modifier + '.png'];
 
-  for (i = 0; xoffset < limit; i++) {
+  for (i = 0; xoffset < WIDTH; i++) {
     objects[i] = new enchant.Sprite(asset.width, asset.height);
     objects[i].image = asset;
     objects[i].x = objects[i].width / 2+xoffset;
@@ -203,10 +204,7 @@ function addCommon (game, scene, ground, count, prefix, modifier) {
 
     scene.addChild(objects[i]);
 
-    if (modifier == 'n')
-      xoffset -= WIDTH / count - Math.random() * 100 + 50;
-    else
-      xoffset += WIDTH / count + Math.random() * 100 - 50;
+      xoffset += WIDTH / 5 + Math.random() * 1000;
   }
 
   return objects;
@@ -230,7 +228,7 @@ function addCar (game, scene, ground,asset, direction,speed) {
         car.y = HEIGHT/2 - asset.height*1.5;//ground.y + ground.width/2;
         car.tl.moveBy(WIDTH+car.width*50,0,150).moveTo(-asset.width*(1+speed) ,car.y,0).loop();
     }
-    console.log(car)
+
     car.touchEnabled = false;
     car.onenterframe = function () {
 
@@ -271,14 +269,20 @@ var SceneOneUpper = Class.create(enchant.Group, {
 
     // METEORS
     var meteorsPool = new Pool();
+
     for (var i = 0; i < FALLING_OBJECTS.length; i++) {
       var asset = game.assets[FALLING_OBJECTS[i]];
       var meteor = new enchant.Sprite(asset.width, asset.height);
       meteor.image = asset;
       meteor.frames = [0,1,2];
       meteor.touchEnabled = false;
-      meteorsPool.add(meteor);
+      meteor.reset = function (){
+        this.remove();
+        meteorsPool.add(this);
+      };
+      meteor.reset();
     }
+    
     game.rootScene.tl
       .delay(30)
       .then(function() {
@@ -290,29 +294,27 @@ var SceneOneUpper = Class.create(enchant.Group, {
         self.addChild(meteor);
         meteor.tl
           .clear()
-          .moveTo(game.player.x+(0.5-Math.random())*game.player.width*10, game.player.y+100, 35,enchant.Easing.EXPO_EASEIN)
+          .moveTo(game.player.x+(0.5-Math.random())*game.player.width*10, game.player.y+100, 60, enchant.Easing.EXPO_EASEIN)
+          .moveBy(-1 * SPEED * 20, 0, 200)
           .then(function(){
-            meteor.onenterframe = function(){ };
-            self.objects[0].push(meteor);
-          })
-          .delay(100)
-          .then(function(){
-            self.removeChild(meteor);
-            meteorsPool.add(meteor);
+            meteor.reset();
           });
 
         meteor.onenterframe = function(){
+          // too old
           if (this.age > 100) {
+            meteor.reset();
 
-            self.removeChild(this);
-            meteorsPool.add(meteor);
+          // too low
+          } else if (this.y + this.height > game.player.y + game.player.height) {
+            this._intersected = true;
 
+          // test intersections
           } else if (! game.twisting && ! this._intersected) {
-            if (game.frame % 3 === 0 && this.intersect(game.player)) {
-              // console.log('Yo, you are dead bitch !');
+            if (this.intersect(game.player)) {
+              console.log('Yo, you are dead bitch !');
               this._intersected = true;
-              self.removeChild(this);
-              meteorsPool.add(meteor);
+              meteor.reset();
             }
           }
         };
@@ -321,7 +323,7 @@ var SceneOneUpper = Class.create(enchant.Group, {
       .loop();
   }
 });
-SceneOneUpper.preload = ['img/elem-voit1-j.png','img/elem-voit2-j.png','sounds/Jour.mp3','sounds/Nuit.mp3','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
+SceneOneUpper.preload = ['sounds/Jour.mp3','sounds/Nuit.mp3','distimg/route-jour-fs8.png', 'distimg/elem-poubelles-j.png', 'distimg/elem-arbre-j.png', 'distimg/elem-lampe-j.png', 'distimg/fond-jour.png', 'distimg/decor-jour.png'];
 for (var i = 0; i < 6; i++) { SceneOneUpper.preload.push('distimg/imm' + (i+1) + '-j-fs8.png'); }
 
 
@@ -343,10 +345,14 @@ var SceneOneLower = Class.create(enchant.Group, {
       addBuildings(game, this, this.ground, 'n'),
       //[this.addChild(game.player)],
       //[this.addChild(FGMarker)],
-      addCommon(game, game.lowerScenefg, this.ground, 3, 'elem-arbre', 'n'),
-      addCommon(game, game.lowerScenefg, this.ground, 2, 'elem-lampe', 'n'),
+      addCommon(game, this, this.ground, 3, 'elem-arbre', 'n'),
+      addCommon(game, this, this.ground, 2, 'elem-lampe', 'n'),
       addTrashes(game, this, this.ground, 'n')
     ];
+      addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,0);
+      addCar(game,this,this.ground,game.assets['img/elem-voit2-n.png'],1,30);
+      addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,15);
+      addCar(game,this,this.ground,game.assets['img/elem-voit1-n.png'],-1,7);
 
   }
 });
@@ -427,9 +433,12 @@ var Game = function () {
   var self = this;
 
   game = this.game = new enchant.Core(WIDTH, HEIGHT); //screen res
-  game.fps=24;
+  game.fps = 30;
 
-  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3' ].concat(FALLING_OBJECTS);
+  var preload = [ settings.player.sprite_j, settings.player.sprite_n, 'sounds/Transition.mp3' ]
+    .concat(FALLING_OBJECTS)
+    .concat(CARS_DAY)
+    .concat(CARS_NIGHT);
 
   for (var i = 0; i < settings.levels.length; i++) {
     var j;
