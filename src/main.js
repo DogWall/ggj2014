@@ -749,7 +749,7 @@ Game.prototype.loose = function() {
   this.game.pause();
   setTimeout(function(){
     window.location = 'img/scenes/Game-over.png';
-  }, 3000);
+  }, 10);
 };
 
 window.ggj = new Game();
