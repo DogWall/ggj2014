@@ -537,7 +537,7 @@ var Player = Class.create(enchant.Sprite, {
 
   onenterframe : function() {
     if (this.age - this.counter > game.fps * 30) {
-      console.log('You win!');
+      window.location = '';
     } else {
       // console.log(this.age-this.counter);
     }
