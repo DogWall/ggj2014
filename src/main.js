@@ -621,7 +621,7 @@ Game.prototype.twist = function() {
             self.Boss.tl.clear();
             self.Boss.x=WIDTH-self.Boss.width;//self.player.x;
             self.Boss.y=self.player.y;
-            self.Boss.tl.moveTo(WIDTH/2,self.Boss.y,100+Math.random()*100);
+            self.Boss.tl.moveTo(WIDTH/2,self.Boss.y,100+Math.random()*100).then(function(){console.log("you dead!")});
             //self.lowerScenefg.addChild(self.Boss);
             self.upperScene.tl.rotateBy(-180, TRANSITION);self.upperScenefg.tl.rotateBy(-180, TRANSITION);
             self.lowerScene.tl.rotateBy(-180, TRANSITION);self.lowerScenefg.tl.rotateBy(-180, TRANSITION)
